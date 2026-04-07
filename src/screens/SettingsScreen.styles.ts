@@ -1,0 +1,194 @@
+import { StyleSheet } from 'react-native';
+import { palette } from '../utils/palette';
+import { spacing } from '../utils/theme';
+
+const border = {
+  borderWidth: StyleSheet.hairlineWidth,
+  borderColor: 'rgba(17, 17, 17, 0.1)',
+} as const;
+
+export const styles = StyleSheet.create({
+  root: { flex: 1 },
+  flex: { flex: 1 },
+  scrollContent: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl * 2,
+    paddingTop: spacing.sm,
+  },
+  sectionLabel: {
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+    fontSize: 11,
+    fontWeight: '800',
+    color: palette.black,
+    textTransform: 'uppercase',
+    letterSpacing: 0.7,
+  },
+  card: {
+    backgroundColor: palette.white,
+    borderRadius: 16,
+    padding: spacing.md,
+    ...border,
+  },
+  profileRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginBottom: spacing.md,
+  },
+  avatarLarge: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: palette.white,
+    ...border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  avatarLargeImage: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+  },
+  bunnyLarge: {
+    fontSize: 32,
+    lineHeight: 36,
+  },
+  profileMeta: { flex: 1, gap: 4 },
+  profileHint: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: palette.black,
+  },
+  rowButtons: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    gap: spacing.sm,
+    marginBottom: spacing.lg + spacing.xs,
+  },
+  pillButton: {
+    flex: 1,
+    minWidth: 0,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    borderRadius: 12,
+    backgroundColor: palette.white,
+    ...border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pillButtonLabel: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: palette.black,
+  },
+  label: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: palette.black,
+    textTransform: 'uppercase',
+    letterSpacing: 0.7,
+    marginBottom: spacing.xs,
+    marginTop: spacing.sm,
+  },
+  labelFirst: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: palette.black,
+    textTransform: 'uppercase',
+    letterSpacing: 0.7,
+    marginBottom: spacing.xs,
+  },
+  input: {
+    backgroundColor: palette.white,
+    ...border,
+    borderRadius: 12,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    fontSize: 16,
+    color: palette.black,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+  },
+  switchLabelBlock: { flex: 1 },
+  switchTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: palette.black,
+  },
+  switchSubtitle: {
+    marginTop: 4,
+    fontSize: 13,
+    lineHeight: 18,
+    color: palette.black,
+  },
+
+  emojiModalRoot: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  emojiModalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(17, 17, 17, 0.35)',
+  },
+  emojiModalCard: {
+    backgroundColor: palette.white,
+    borderRadius: 16,
+    padding: spacing.lg,
+    ...border,
+  },
+  emojiModalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: palette.black,
+    letterSpacing: -0.3,
+    marginBottom: spacing.sm,
+  },
+  emojiModalHint: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: palette.black,
+    marginBottom: spacing.md,
+  },
+  emojiModalInput: {
+    ...border,
+    borderRadius: 12,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    fontSize: 28,
+    textAlign: 'center',
+    color: palette.black,
+    marginBottom: spacing.lg,
+    minHeight: 52,
+  },
+  emojiModalActions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  emojiModalButton: {
+    flex: 1,
+    paddingVertical: spacing.sm,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emojiModalButtonSecondary: {
+    backgroundColor: palette.white,
+    ...border,
+  },
+  emojiModalButtonPrimary: {
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(17, 17, 17, 0.12)',
+  },
+  emojiModalButtonLabel: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: palette.black,
+  },
+});
