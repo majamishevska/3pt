@@ -1,4 +1,10 @@
-import { getInfoAsync, makeDirectoryAsync, writeAsStringAsync, documentDirectory } from 'expo-file-system/legacy';
+import {
+  copyAsync,
+  getInfoAsync,
+  makeDirectoryAsync,
+  writeAsStringAsync,
+  documentDirectory,
+} from 'expo-file-system/legacy';
 
 const EXPORT_SUBDIR = 'exports';
 
@@ -8,7 +14,7 @@ export type ExportWriteResult = {
   folderUri: string;
 };
 
-export async function writeExportToDocuments(payload: string, ext: 'json' | 'csv'): Promise<ExportWriteResult> {
+export async function ensureExportsFolder(): Promise<string> {
   const base = documentDirectory;
   if (!base) {
     throw new Error('Document storage is not available on this device.');
@@ -22,6 +28,11 @@ export async function writeExportToDocuments(payload: string, ext: 'json' | 'csv
   } catch {
     await makeDirectoryAsync(folderUri, { intermediates: true });
   }
+  return folderUri;
+}
+
+export async function writeExportToDocuments(payload: string, ext: 'json' | 'csv'): Promise<ExportWriteResult> {
+  const folderUri = await ensureExportsFolder();
 
   const safeStamp = new Date().toISOString().replace(/[:.]/g, '-');
   const fileName = `cycle-export-${safeStamp}.${ext}`;
@@ -29,6 +40,13 @@ export async function writeExportToDocuments(payload: string, ext: 'json' | 'csv
 
   await writeAsStringAsync(fileUri, payload);
 
+  return { fileUri, fileName, folderUri };
+}
+
+export async function copyFileToExports(sourceUri: string, fileName: string): Promise<ExportWriteResult> {
+  const folderUri = await ensureExportsFolder();
+  const fileUri = `${folderUri}/${fileName}`;
+  await copyAsync({ from: sourceUri, to: fileUri });
   return { fileUri, fileName, folderUri };
 }
 

@@ -6,6 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { RangeCalendar } from '../components/RangeCalendar';
+import { FlowStrengthPicker } from '../components/FlowStrengthPicker';
+import { MoodPicker } from '../components/MoodPicker';
 import { SymptomPicker } from '../components/SymptomPicker';
 import { getEntryById, updateEntry } from '../utils/storage';
 import type { CycleEntry } from '../utils/types';
@@ -28,10 +30,19 @@ export default function EditEntryScreen() {
   const [startDate, setStartDate] = useState(todayISO);
   const [endDate, setEndDate] = useState(todayISO);
   const [rangeDirty, setRangeDirty] = useState(false);
+  const [flowStrength, setFlowStrength] = useState(3);
   const [symptoms, setSymptoms] = useState<string[]>([]);
+  const [mood, setMood] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
-  const baselineRef = useRef<{ start: string; end: string; notes: string; symptomsKey: string } | null>(null);
+  const baselineRef = useRef<{
+    start: string;
+    end: string;
+    flowStrength: number;
+    notes: string;
+    symptomsKey: string;
+    moodKey: string;
+  } | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -48,13 +59,17 @@ export default function EditEntryScreen() {
         setEntry(e);
         setStartDate(e.periodStartDate);
         setEndDate(e.periodEndDate);
+        setFlowStrength(e.flowStrength ?? 3);
         setSymptoms(e.symptoms ?? []);
+        setMood(e.mood ?? []);
         setNotes(e.notes ?? '');
         baselineRef.current = {
           start: e.periodStartDate,
           end: e.periodEndDate,
+          flowStrength: e.flowStrength ?? 3,
           notes: (e.notes ?? '').trim(),
           symptomsKey: JSON.stringify((e.symptoms ?? []).slice().sort()),
+          moodKey: JSON.stringify((e.mood ?? []).slice().sort()),
         };
       })();
     }, [id]),
@@ -65,11 +80,14 @@ export default function EditEntryScreen() {
     const base = baselineRef.current;
     const currentNotes = notes.trim();
     const currentSymptomsKey = JSON.stringify(symptoms.slice().sort());
+    const currentMoodKey = JSON.stringify(mood.slice().sort());
     const datesChanged = compareISO(startDate, base.start) !== 0 || compareISO(endDate, base.end) !== 0;
+    const flowChanged = (flowStrength ?? 3) !== (base.flowStrength ?? 3);
     const notesChanged = currentNotes !== base.notes;
     const symptomsChanged = currentSymptomsKey !== base.symptomsKey;
-    return rangeDirty || datesChanged || notesChanged || symptomsChanged;
-  }, [entry, endDate, notes, rangeDirty, startDate, symptoms]);
+    const moodChanged = currentMoodKey !== base.moodKey;
+    return rangeDirty || datesChanged || flowChanged || notesChanged || symptomsChanged || moodChanged;
+  }, [entry, endDate, flowStrength, mood, notes, rangeDirty, startDate, symptoms]);
 
   const confirmLeaveIfDirty = () => {
     if (!hasUnsavedChanges) {
@@ -92,7 +110,9 @@ export default function EditEntryScreen() {
         ...entry,
         periodStartDate: start,
         periodEndDate: end,
+        flowStrength,
         symptoms,
+        mood,
         notes: notes.trim(),
       });
       Alert.alert('Saved', 'Updated on this device.');
@@ -135,6 +155,12 @@ export default function EditEntryScreen() {
                 showHint={false}
                 onDirtyChange={setRangeDirty}
               />
+            </View>
+            <View style={styles.card}>
+              <FlowStrengthPicker value={flowStrength} onChange={setFlowStrength} />
+            </View>
+            <View style={styles.card}>
+              <MoodPicker selectedIds={mood} onChange={setMood} accentFillStyle={phaseFill} />
             </View>
             <View style={styles.card}>
               <SymptomPicker selectedIds={symptoms} onChange={setSymptoms} accentFillStyle={phaseFill} />

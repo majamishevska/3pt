@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomBar } from '../../src/components/BottomBar';
-import { styles } from './_layout.styles';
+import { tabsLayoutStyles } from '../../src/styles/tabsLayout.styles';
 
 export default function TabLayout() {
   return (
@@ -9,7 +9,7 @@ export default function TabLayout() {
       tabBar={(props) => <BottomBar {...props} />}
       screenOptions={{
         headerShown: false,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: tabsLayoutStyles.tabBar,
       }}
     >
       <Tabs.Screen

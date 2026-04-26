@@ -8,7 +8,6 @@ export type SymptomOption = { id: string; label: string };
 const DEFAULT_SYMPTOMS: (SymptomOption & { icon: React.ComponentProps<typeof Ionicons>['name'] })[] = [
   { id: 'cramps', label: 'Cramps', icon: 'pulse-outline' },
   { id: 'bloating', label: 'Bloating', icon: 'water-outline' },
-  { id: 'mood', label: 'Mood', icon: 'happy-outline' },
   { id: 'headache', label: 'Headache', icon: 'bandage-outline' },
   { id: 'fatigue', label: 'Fatigue', icon: 'moon-outline' },
   { id: 'acne', label: 'Acne', icon: 'sparkles-outline' },

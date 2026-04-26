@@ -26,13 +26,15 @@ function escapeCsvField(s: string): string {
 }
 
 export function entriesToCSV(entries: CycleEntry[]): string {
-  const header = 'id,periodStartDate,periodEndDate,symptoms,notes,savedAt';
+  const header = 'id,periodStartDate,periodEndDate,flowStrength,symptoms,mood,notes,savedAt';
   const rows = entries.map((e) =>
     [
       escapeCsvField(e.id),
       escapeCsvField(e.periodStartDate),
       escapeCsvField(e.periodEndDate),
+      escapeCsvField(String(e.flowStrength ?? 3)),
       escapeCsvField(JSON.stringify(e.symptoms ?? [])),
+      escapeCsvField(JSON.stringify(e.mood ?? [])),
       escapeCsvField(e.notes ?? ''),
       escapeCsvField(e.savedAt),
     ].join(','),

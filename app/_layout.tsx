@@ -7,9 +7,12 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="settings" />
         <Stack.Screen name="edit/[id]" />
+        <Stack.Screen name="import" />
+        <Stack.Screen name="pin" />
       </Stack>
       <StatusBar style="dark" />
     </SafeAreaProvider>

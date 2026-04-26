@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { RangeCalendar } from '../components/RangeCalendar';
+import { FlowStrengthPicker } from '../components/FlowStrengthPicker';
+import { MoodPicker } from '../components/MoodPicker';
 import { SymptomPicker } from '../components/SymptomPicker';
 import { addEntry } from '../utils/storage';
 import type { CycleEntry } from '../utils/types';
@@ -22,13 +24,20 @@ export default function LogEntryScreen() {
   const [startDate, setStartDate] = useState(todayISO);
   const [endDate, setEndDate] = useState(todayISO);
   const [rangeDirty, setRangeDirty] = useState(false);
+  const [flowStrength, setFlowStrength] = useState(3);
   const [symptoms, setSymptoms] = useState<string[]>([]);
+  const [mood, setMood] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const hasSavedRef = useRef(false);
 
   const hasUnsavedChanges =
-    rangeDirty || notes.trim().length > 0 || symptoms.length > 0 || (startDate !== todayISO || endDate !== todayISO);
+    rangeDirty ||
+    notes.trim().length > 0 ||
+    symptoms.length > 0 ||
+    mood.length > 0 ||
+    flowStrength !== 3 ||
+    (startDate !== todayISO || endDate !== todayISO);
 
   const confirmLeaveIfDirty = () => {
     if (!hasUnsavedChanges || hasSavedRef.current) {
@@ -50,7 +59,9 @@ export default function LogEntryScreen() {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
         periodStartDate: start,
         periodEndDate: end,
+        flowStrength,
         symptoms,
+        mood,
         notes: notes.trim(),
         savedAt: new Date().toISOString(),
       };
@@ -58,6 +69,7 @@ export default function LogEntryScreen() {
       hasSavedRef.current = true;
       setNotes('');
       setSymptoms([]);
+      setMood([]);
       Alert.alert('Saved', 'Stored on this device.');
     } finally {
       setSaving(false);
@@ -69,7 +81,7 @@ export default function LogEntryScreen() {
       <ScreenHeader title="Log entry" showBack onBackPress={confirmLeaveIfDirty} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <Text style={styles.subtitle}>Log your period dates and any symptoms you want to remember.</Text>
+          <Text style={styles.subtitle}>Log your period dates, mood, symptoms, or notes you want to remember.</Text>
 
           <View style={styles.section}>
             <View style={styles.card}>
@@ -89,7 +101,13 @@ export default function LogEntryScreen() {
             />
             </View>
             <View style={styles.card}>
-            <SymptomPicker selectedIds={symptoms} onChange={setSymptoms} accentFillStyle={phaseFill} />
+              <FlowStrengthPicker value={flowStrength} onChange={setFlowStrength} />
+            </View>
+            <View style={styles.card}>
+              <MoodPicker selectedIds={mood} onChange={setMood} accentFillStyle={phaseFill} />
+            </View>
+            <View style={styles.card}>
+              <SymptomPicker selectedIds={symptoms} onChange={setSymptoms} accentFillStyle={phaseFill} />
             </View>
             <View style={styles.card}>
             <Text style={styles.label}>Notes (optional)</Text>

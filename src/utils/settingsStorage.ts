@@ -6,11 +6,19 @@ const LEGACY_SETTINGS_KEY = '@period_tracker_settings_v1';
 export type AppSettings = {
   showPregnancyInfo: boolean;
   displayName: string;
+  /** Kept for backward compatibility; not shown in UI. */
   pronouns: string;
   /** Local file URI when user picks a photo; null = bunny placeholder. */
   profileImageUri: string | null;
   /** When no photo, shown in header; null = default rabbit. */
   profileEmoji: string | null;
+  /** Typical full cycle length in days (e.g. 28). */
+  averageCycleLengthDays: number;
+  /** Typical bleeding length in days. */
+  averagePeriodLengthDays: number;
+  notificationsEnabled: boolean;
+  /** Days before expected period to remind (when notifications are on). */
+  reminderDaysBeforePeriod: number;
 };
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -19,7 +27,16 @@ export const DEFAULT_SETTINGS: AppSettings = {
   pronouns: '',
   profileImageUri: null,
   profileEmoji: null,
+  averageCycleLengthDays: 28,
+  averagePeriodLengthDays: 5,
+  notificationsEnabled: false,
+  reminderDaysBeforePeriod: 1,
 };
+
+function clampInt(n: number, min: number, max: number, fallback: number): number {
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, Math.round(n)));
+}
 
 function normalizeSettings(parsed: Partial<AppSettings> | null): AppSettings {
   if (!parsed || typeof parsed !== 'object') return { ...DEFAULT_SETTINGS };
@@ -36,6 +53,28 @@ function normalizeSettings(parsed: Partial<AppSettings> | null): AppSettings {
       parsed.profileEmoji === null || typeof parsed.profileEmoji === 'string'
         ? parsed.profileEmoji
         : DEFAULT_SETTINGS.profileEmoji,
+    averageCycleLengthDays: clampInt(
+      Number(parsed.averageCycleLengthDays),
+      15,
+      45,
+      DEFAULT_SETTINGS.averageCycleLengthDays,
+    ),
+    averagePeriodLengthDays: clampInt(
+      Number(parsed.averagePeriodLengthDays),
+      1,
+      14,
+      DEFAULT_SETTINGS.averagePeriodLengthDays,
+    ),
+    notificationsEnabled:
+      typeof parsed.notificationsEnabled === 'boolean'
+        ? parsed.notificationsEnabled
+        : DEFAULT_SETTINGS.notificationsEnabled,
+    reminderDaysBeforePeriod: clampInt(
+      Number(parsed.reminderDaysBeforePeriod),
+      0,
+      14,
+      DEFAULT_SETTINGS.reminderDaysBeforePeriod,
+    ),
   };
 }
 

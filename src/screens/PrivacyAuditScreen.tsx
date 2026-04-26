@@ -1,32 +1,28 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
 import * as Sharing from 'expo-sharing';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { ScreenHeader } from '../components/ScreenHeader';
-import { RangeCalendar } from '../components/RangeCalendar';
 import type { CyclePhaseId } from '../utils/phaseConfig';
 import { useCyclePhaseId } from '../hooks/useCyclePhaseAccent';
 import { phaseAccentFill, phaseScreenBg } from '../utils/phaseChrome.styles';
 import { compareISO, toDateISO } from '../utils/dates';
-import {
-  filterEntriesByDateRange,
-  formatExport,
-  type ExportFormat,
-} from '../utils/exportEntries';
+import { filterEntriesByDateRange, formatExport } from '../utils/exportEntries';
 import { palette } from '../utils/palette';
-import { PERIOD_DATA_PRIVACY_ITEMS, loadEntries } from '../utils/storage';
+import { loadEntries } from '../utils/storage';
 import { spacing } from '../utils/theme';
 import { friendlyDocumentsHint, writeExportToDocuments } from '../utils/writeExportFile';
 import { documentDirectory } from 'expo-file-system/legacy';
+import { formatISOForInput, parseUserDateToISO, validateStartEnd } from '../utils/dateRangeInputs';
+import { deleteAllLocalData } from '../utils/deleteAllData';
 import { styles } from './PrivacyAuditScreen.styles';
-
-function isISODate(s: string) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(s);
-}
+import { loadSettings } from '../utils/settingsStorage';
+import { generatePeriodCalendarPdf } from '../pdf/generatePdf';
 
 function pathForDisplay(uri: string): string {
   try {
@@ -41,52 +37,114 @@ export default function PrivacyAuditScreen() {
   const phaseFill = phaseAccentFill[phaseId];
   const appName = Constants.expoConfig?.name ?? 'this app';
 
-  const [exportStart, setExportStart] = useState(() => toDateISO(new Date()));
-  const [exportEnd, setExportEnd] = useState(() => toDateISO(new Date()));
-  const [exportFormat, setExportFormat] = useState<ExportFormat>('json');
+  const [startText, setStartText] = useState(() => toDateISO(new Date()));
+  const [endText, setEndText] = useState(() => toDateISO(new Date()));
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [exportFormat, setExportFormat] = useState<'json' | 'csv' | 'pdf'>('json');
   const [exportFolderUri, setExportFolderUri] = useState<string | null>(null);
   const [lastExport, setLastExport] = useState<{ fileName: string; fileUri: string; folderUri: string } | null>(
     null,
   );
   const documentsHint = useMemo(() => friendlyDocumentsHint(appName), [appName]);
-  const [exportRangeDirty, setExportRangeDirty] = useState(false);
+  const [allTimeMinMax, setAllTimeMinMax] = useState<{ min: string; max: string } | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const syncFromStorage = useCallback(async () => {
+    const list = await loadEntries();
+    if (list.length === 0) {
+      const t = toDateISO(new Date());
+      setStartText(formatISOForInput(t));
+      setEndText(formatISOForInput(t));
+      setAllTimeMinMax(null);
+    } else {
+      const sorted = [...list].sort((a, b) => compareISO(a.periodStartDate, b.periodStartDate));
+      const min = sorted[0].periodStartDate;
+      const max = sorted[sorted.length - 1].periodStartDate;
+      setAllTimeMinMax({ min, max });
+      setStartText(formatISOForInput(min));
+      setEndText(formatISOForInput(max));
+    }
+    if (documentDirectory) {
+      setExportFolderUri(`${documentDirectory}exports`);
+    } else {
+      setExportFolderUri(null);
+    }
+    setExportError(null);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
-      void (async () => {
-        const list = await loadEntries();
-        if (list.length === 0) {
-          const t = toDateISO(new Date());
-          setExportStart(t);
-          setExportEnd(t);
-        } else {
-          const sorted = [...list].sort((a, b) => compareISO(a.periodStartDate, b.periodStartDate));
-          setExportStart(sorted[0].periodStartDate);
-          setExportEnd(sorted[sorted.length - 1].periodStartDate);
-        }
-        if (documentDirectory) {
-          setExportFolderUri(`${documentDirectory}exports`);
-        } else {
-          setExportFolderUri(null);
-        }
-      })();
-    }, []),
+      void syncFromStorage();
+    }, [syncFromStorage]),
   );
 
+  const syncAndValidate = useCallback(
+    (nextStartText: string, nextEndText: string) => {
+      const s = parseUserDateToISO(nextStartText);
+      const e = parseUserDateToISO(nextEndText);
+      if (s.error) return { ok: false as const, error: s.error };
+      if (e.error) return { ok: false as const, error: e.error };
+      const rangeErr = validateStartEnd(s.iso, e.iso);
+      if (rangeErr) return { ok: false as const, error: rangeErr };
+      return { ok: true as const, startISO: s.iso!, endISO: e.iso! };
+    },
+    [],
+  );
+
+  const applyTextRange = useCallback(
+    (nextStartText: string, nextEndText: string) => {
+      setStartText(nextStartText);
+      setEndText(nextEndText);
+      const v = syncAndValidate(nextStartText, nextEndText);
+      if (!v.ok) {
+        setExportError(v.error);
+        return;
+      }
+      setExportError(null);
+    },
+    [syncAndValidate],
+  );
+
+  const applyAllTime = useCallback(() => {
+    if (!allTimeMinMax) {
+      setExportError('No saved entries yet');
+      return;
+    }
+    const { min, max } = allTimeMinMax;
+    setExportError(null);
+    setStartText(formatISOForInput(min));
+    setEndText(formatISOForInput(max));
+  }, [allTimeMinMax]);
+
   const onExport = async () => {
-    if (exportRangeDirty) {
-      Alert.alert('Dates', 'Apply your date range on the calendar first.');
+    const v = syncAndValidate(startText, endText);
+    if (!v.ok) {
+      setExportError(v.error);
+      Alert.alert('Dates', v.error);
       return;
     }
-    if (!isISODate(exportStart) || !isISODate(exportEnd)) {
-      Alert.alert('Dates', 'Pick a start and end date, then tap Apply.');
-      return;
-    }
+    setExportError(null);
+
     const entries = await loadEntries();
-    const filtered = filterEntriesByDateRange(entries, exportStart, exportEnd);
-    const payload = formatExport(filtered, exportFormat);
-    const ext = exportFormat === 'csv' ? 'csv' : 'json';
     try {
+      if (exportFormat === 'pdf') {
+        const settings = await loadSettings();
+        const { fileUri, fileName, folderUri } = await generatePeriodCalendarPdf({ settings, entries });
+        setExportFolderUri(folderUri);
+        setLastExport({ fileName, fileUri, folderUri });
+        const available = await Sharing.isAvailableAsync();
+        if (available) {
+          await Sharing.shareAsync(fileUri);
+        } else {
+          Alert.alert('Export saved', `We saved ${fileName}. Use the buttons below to copy the folder path.${documentsHint}`);
+        }
+        return;
+      }
+
+      const filtered = filterEntriesByDateRange(entries, v.startISO, v.endISO);
+      const payload = formatExport(filtered, exportFormat);
+      const ext = exportFormat === 'csv' ? 'csv' : 'json';
       const { fileUri, fileName, folderUri } = await writeExportToDocuments(payload, ext);
       setExportFolderUri(folderUri);
       setLastExport({ fileName, fileUri, folderUri });
@@ -119,58 +177,62 @@ export default function PrivacyAuditScreen() {
           you explicitly export leaves the app.
         </Text>
 
-        <Text style={styles.section}>Where your data lives</Text>
+        <Text style={styles.section}>Import your data</Text>
         <View style={styles.card}>
-          <Text style={styles.desc}>
-            <Text style={styles.bold}>Period entries & notes</Text> are saved in secure on-device storage (like a small
-            private database only this app can read). They are not stored as regular files in your Photos or Downloads
-            folders.
-          </Text>
-          <Text style={[styles.desc, { marginTop: spacing.sm }]}>
-            <Text style={styles.bold}>Settings</Text> (name, profile icon, preferences) are saved the same way, in a
-            separate area of that storage.
-          </Text>
-          {exportFolderUri ? (
-            <View style={styles.pathBox}>
-              <Text style={styles.pathLabel}>Export files folder</Text>
-              <Text style={styles.pathText} selectable>
-                {pathForDisplay(exportFolderUri)}
-              </Text>
-              <View style={styles.copyRow}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Copy exports folder path"
-                  onPress={() => void copyPath(exportFolderUri, 'Exports folder path')}
-                  style={({ pressed }) => [styles.copyPill, pressed && { opacity: 0.88 }]}
-                >
-                  <Text style={styles.copyPillLabel}>Copy folder path</Text>
-                </Pressable>
-              </View>
-            </View>
-          ) : null}
-          <Text style={[styles.technical, { marginTop: spacing.md }]}>
-            {documentsHint} If you use Export, we also write a file under Documents → exports so you can share it via
-            the system share sheet (Mail, Files, Drive, etc.).
-          </Text>
+          <Text style={styles.desc}>Bring in period history from other apps, or from a previous 3PT export.</Text>
+          <View style={{ marginTop: spacing.md }}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Import"
+              onPress={() => router.push('/import' as any)}
+              style={({ pressed }) => [styles.exportButton, phaseFill, pressed && styles.exportButtonPressed]}
+            >
+              <Ionicons name="download-outline" size={18} color={palette.black} />
+              <Text style={styles.exportLabel}>Import</Text>
+            </Pressable>
+          </View>
         </View>
 
         <Text style={styles.section}>Export your data</Text>
         <View style={styles.exportCard}>
-          <RangeCalendar
-            title="Date range to export"
-            committedStart={exportStart}
-            committedEnd={exportEnd}
-            onApply={(s, e) => {
-              setExportStart(s);
-              setExportEnd(e);
-            }}
-            selectionFillStyle={phaseFill}
-            rangeMiddleStyle={[phaseFill, { opacity: 0.38 }]}
-            onDirtyChange={setExportRangeDirty}
+          <Text style={styles.fieldLabelFirst}>Start date</Text>
+          <TextInput
+            value={startText}
+            onChangeText={(t) => applyTextRange(t, endText)}
+            placeholder="YYYY-MM-DD or MM/DD/YYYY"
+            placeholderTextColor="rgba(17, 17, 17, 0.45)"
+            style={styles.input}
+            autoCapitalize="none"
+            autoCorrect={false}
+            inputMode="numeric"
           />
+          <Text style={styles.fieldLabel}>End date</Text>
+          <TextInput
+            value={endText}
+            onChangeText={(t) => applyTextRange(startText, t)}
+            placeholder="YYYY-MM-DD or MM/DD/YYYY"
+            placeholderTextColor="rgba(17, 17, 17, 0.45)"
+            style={styles.input}
+            autoCapitalize="none"
+            autoCorrect={false}
+            inputMode="numeric"
+          />
+          {exportError ? <Text style={styles.error}>{exportError}</Text> : null}
+
+          <View style={styles.presetsGrid}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="All time"
+              onPress={() => void applyAllTime()}
+              style={({ pressed }) => [styles.presetChip, phaseFill, pressed && { opacity: 0.9 }]}
+            >
+              <Text style={styles.presetChipText}>All time</Text>
+            </Pressable>
+          </View>
+
           <Text style={styles.inlineFieldLabel}>Format</Text>
           <View style={styles.formatRow}>
-            {(['json', 'csv'] as const).map((fmt) => (
+            {(['json', 'csv', 'pdf'] as const).map((fmt) => (
               <Pressable
                 key={fmt}
                 accessibilityRole="button"
@@ -186,16 +248,18 @@ export default function PrivacyAuditScreen() {
               </Pressable>
             ))}
           </View>
+
+          {exportFormat === 'pdf' ? <Text style={styles.technical}>Created locally on this device.</Text> : null}
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Export data"
             onPress={() => void onExport()}
-            disabled={exportRangeDirty}
+            disabled={!!exportError}
             style={({ pressed }) => [
               styles.exportButton,
               phaseFill,
               pressed && styles.exportButtonPressed,
-              exportRangeDirty && { opacity: 0.45 },
+              exportError && { opacity: 0.45 },
             ]}
           >
             <Ionicons name="share-outline" size={18} color={palette.black} />
@@ -221,18 +285,79 @@ export default function PrivacyAuditScreen() {
           ) : null}
         </View>
 
-        <Text style={styles.section}>What we store</Text>
-        <View style={styles.card}>
-          {PERIOD_DATA_PRIVACY_ITEMS.map((item) => (
-            <View key={item.title} style={styles.row}>
-              <Text style={styles.itemTitle}>{item.title}</Text>
-              <Text style={styles.desc}>{item.body}</Text>
-            </View>
-          ))}
+        <Text style={styles.section}>Delete all data</Text>
+        <View style={styles.dangerCard}>
+          <Text style={styles.desc}>
+            This removes period entries and import history stored on this device. Your profile settings stay.
+          </Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Delete all data"
+            onPress={() => setDeleteOpen(true)}
+            style={({ pressed }) => [styles.dangerButton, pressed && { opacity: 0.92 }]}
+          >
+            <Ionicons name="trash-outline" size={18} color={palette.white} />
+            <Text style={styles.dangerButtonLabel}>Delete all data</Text>
+          </Pressable>
         </View>
-
-        <Text style={styles.footer}>Export and storage behavior can evolve as the app grows.</Text>
       </ScrollView>
+
+      <Modal
+        visible={deleteOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => {
+          if (!deleting) setDeleteOpen(false);
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Delete all data?</Text>
+            <Text style={styles.modalBody}>
+              This will remove period entries and import history from this device. Export files you already saved won’t be
+              removed.
+            </Text>
+            <View style={styles.modalActions}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Cancel delete"
+                onPress={() => setDeleteOpen(false)}
+                disabled={deleting}
+                style={({ pressed }) => [styles.modalButton, pressed && !deleting && { opacity: 0.9 }, deleting && { opacity: 0.6 }]}
+              >
+                <Text style={styles.modalButtonLabel}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Confirm delete all data"
+                onPress={() => {
+                  void (async () => {
+                    setDeleting(true);
+                    try {
+                      await deleteAllLocalData({ includeSettings: false });
+                      await syncFromStorage();
+                      setDeleteOpen(false);
+                      Alert.alert('Deleted', 'Local period data and import history were removed.');
+                    } catch (e) {
+                      Alert.alert('Delete', e instanceof Error ? e.message : 'Could not delete local data.');
+                    } finally {
+                      setDeleting(false);
+                    }
+                  })();
+                }}
+                disabled={deleting}
+                style={({ pressed }) => [
+                  styles.modalButtonPrimary,
+                  pressed && !deleting && { opacity: 0.92 },
+                  deleting && { opacity: 0.6 },
+                ]}
+              >
+                <Text style={styles.modalButtonLabelPrimary}>{deleting ? 'Deleting…' : 'Delete'}</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

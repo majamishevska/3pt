@@ -80,7 +80,7 @@ export default function HomeScreen() {
       <ScreenHeader title="Today" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.greeting}>{greeting}</Text>
-        <Text style={styles.dateLine}>{formatWeekdayMonthDay(parseISODate(todayISO))}</Text>
+        <Text style={styles.dateLine}>{"It's " + formatWeekdayMonthDay(parseISODate(todayISO)) + "."}</Text>
 
         <View style={styles.ringStack}>
           <View style={styles.ringWhiteDisc} />
