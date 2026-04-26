@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { ScreenHeader } from '../components/ScreenHeader';
+import { ProfileAvatar } from '../components/profile/ProfileAvatar';
 import { useAppSettings } from '../hooks/useAppSettings';
 import type { CyclePhaseId } from '../utils/phaseConfig';
 import { useCyclePhaseId } from '../hooks/useCyclePhaseAccent';
@@ -46,8 +47,6 @@ export default function SettingsScreen() {
   const [averagePeriodText, setAveragePeriodText] = useState('');
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [reminderDaysText, setReminderDaysText] = useState('');
-  const [emojiModalOpen, setEmojiModalOpen] = useState(false);
-  const [emojiDraft, setEmojiDraft] = useState('');
 
   const hydrate = useCallback(async () => {
     const s = await loadSettings();
@@ -118,33 +117,12 @@ export default function SettingsScreen() {
     await refresh();
   };
 
-  const applyAvatarEmoji = async (emoji: string | null) => {
-    const base = await loadSettings();
-    await saveSettings({ ...base, profileImageUri: null, profileEmoji: emoji });
-    await refresh();
-  };
-
-  const openEmojiModal = () => {
-    void (async () => {
-      const s = await loadSettings();
-      setEmojiDraft(s.profileEmoji?.trim() ?? '');
-      setEmojiModalOpen(true);
-    })();
-  };
-
-  const confirmEmojiChoice = async () => {
-    const trimmed = emojiDraft.trim();
-    await applyAvatarEmoji(trimmed.length > 0 ? trimmed : null);
-    setEmojiModalOpen(false);
-  };
-
   const onTogglePregnancy = async (value: boolean) => {
     await persist({ showPregnancyInfo: value });
   };
 
   const showPregnancy = settings?.showPregnancyInfo ?? false;
   const uri = settings?.profileImageUri;
-  const avatarGlyph = uri ? null : settings?.profileEmoji?.trim() || '🐰';
   const reminderDays = settings?.reminderDaysBeforePeriod ?? 1;
   const reminderPreview = useMemo(() => {
     const t = reminderDaysText.trim();
@@ -172,7 +150,12 @@ export default function SettingsScreen() {
               {uri ? (
                 <Image source={{ uri }} style={styles.avatarLargeImage} />
               ) : (
-                <Text style={styles.bunnyLarge}>{avatarGlyph}</Text>
+                <ProfileAvatar
+                  size={styles.avatarLarge.width as number}
+                  customization={
+                    settings?.profileCustomization ?? { base: 'bunny', colorHex: '#bedd3c', mouthChar: 't', showNose: false }
+                  }
+                />
               )}
             </View>
             <Text style={styles.profileHint}>Shown in the app header.</Text>
@@ -185,14 +168,6 @@ export default function SettingsScreen() {
               style={({ pressed }) => [styles.pillButton, pressed && { opacity: 0.88 }]}
             >
               <Text style={styles.pillButtonLabel}>Choose photo</Text>
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Choose emoji avatar"
-              onPress={openEmojiModal}
-              style={({ pressed }) => [styles.pillButton, pressed && { opacity: 0.88 }]}
-            >
-              <Text style={styles.pillButtonLabel}>Choose emoji</Text>
             </Pressable>
           </View>
 
@@ -292,60 +267,6 @@ export default function SettingsScreen() {
           </View>
         </View>
       </ScrollView>
-
-      <Modal visible={emojiModalOpen} animationType="fade" transparent onRequestClose={() => setEmojiModalOpen(false)}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          style={styles.emojiModalRoot}
-        >
-          <Pressable
-            style={styles.emojiModalBackdrop}
-            onPress={() => setEmojiModalOpen(false)}
-            accessibilityRole="button"
-            accessibilityLabel="Dismiss"
-          />
-          <View style={styles.emojiModalCard}>
-            <Text style={styles.emojiModalTitle}>Profile emoji</Text>
-            <Text style={styles.emojiModalHint}>
-              Open the emoji keyboard and enter any icon you like. Leave the field empty to clear. Saving removes a photo
-              if you had one.
-            </Text>
-            <TextInput
-              value={emojiDraft}
-              onChangeText={setEmojiDraft}
-              placeholder="Tap here, then emoji key…"
-              placeholderTextColor="rgba(17, 17, 17, 0.45)"
-              style={styles.emojiModalInput}
-              autoFocus
-              multiline={false}
-              maxLength={128}
-            />
-            <View style={styles.emojiModalActions}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Cancel"
-                onPress={() => setEmojiModalOpen(false)}
-                style={({ pressed }) => [styles.emojiModalButton, styles.emojiModalButtonSecondary, pressed && { opacity: 0.88 }]}
-              >
-                <Text style={styles.emojiModalButtonLabel}>Cancel</Text>
-              </Pressable>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Save emoji"
-                onPress={() => void confirmEmojiChoice()}
-                style={({ pressed }) => [
-                  styles.emojiModalButton,
-                  styles.emojiModalButtonPrimary,
-                  phaseFill,
-                  pressed && { opacity: 0.88 },
-                ]}
-              >
-                <Text style={styles.emojiModalButtonLabel}>Save</Text>
-              </Pressable>
-            </View>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
     </SafeAreaView>
   );
 }

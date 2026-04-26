@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { palette } from '../utils/palette';
 import { useAppSettings } from '../hooks/useAppSettings';
+import { ProfileAvatar } from './profile/ProfileAvatar';
 import { styles } from './ScreenHeader.styles';
 
 type Props = {
@@ -50,7 +51,7 @@ export function ScreenHeader({ title, showBack = false, showSettingsButton = tru
           {settings?.profileImageUri ? (
             <Image source={{ uri: settings.profileImageUri }} style={styles.avatarImage} />
           ) : (
-            <Text style={styles.bunnyEmoji}>{settings?.profileEmoji?.trim() || '🐰'}</Text>
+            <ProfileAvatar size={38} customization={settings?.profileCustomization ?? { base: 'bunny', colorHex: '#bedd3c', mouthChar: 't', showNose: false }} />
           )}
         </Pressable>
         {showSettingsButton ? (

@@ -10,8 +10,10 @@ export type AppSettings = {
   pronouns: string;
   /** Local file URI when user picks a photo; null = bunny placeholder. */
   profileImageUri: string | null;
-  /** When no photo, shown in header; null = default rabbit. */
+  /** Legacy fallback (emoji). Kept for backward compatibility; not shown in UI. */
   profileEmoji: string | null;
+  /** When no photo, shown in header if set. */
+  profileCustomization: ProfileCustomization | null;
   /** Typical full cycle length in days (e.g. 28). */
   averageCycleLengthDays: number;
   /** Typical bleeding length in days. */
@@ -21,12 +23,29 @@ export type AppSettings = {
   reminderDaysBeforePeriod: number;
 };
 
+export type ProfileCustomizationBase = 'bear' | 'cat' | 'dog' | 'bunny';
+
+export type ProfileCustomization = {
+  base: ProfileCustomizationBase;
+  colorHex: string;
+  mouthChar: string;
+  showNose: boolean;
+};
+
+const CUSTOMIZATION_COLORS = ['#bedd3c', '#4ca4f0', '#e9b41f', '#fa97ca', '#ea5035'] as const;
+
 export const DEFAULT_SETTINGS: AppSettings = {
   showPregnancyInfo: false,
   displayName: '',
   pronouns: '',
   profileImageUri: null,
   profileEmoji: null,
+  profileCustomization: {
+    base: 'bunny',
+    colorHex: '#bedd3c',
+    mouthChar: 't',
+    showNose: false,
+  },
   averageCycleLengthDays: 28,
   averagePeriodLengthDays: 5,
   notificationsEnabled: false,
@@ -40,6 +59,28 @@ function clampInt(n: number, min: number, max: number, fallback: number): number
 
 function normalizeSettings(parsed: Partial<AppSettings> | null): AppSettings {
   if (!parsed || typeof parsed !== 'object') return { ...DEFAULT_SETTINGS };
+  const rawCustomization = (parsed as any).profileCustomization as Partial<ProfileCustomization> | null | undefined;
+  const normalizedCustomization: ProfileCustomization | null = (() => {
+    if (rawCustomization === null || rawCustomization === undefined) return DEFAULT_SETTINGS.profileCustomization;
+    if (!rawCustomization || typeof rawCustomization !== 'object') return DEFAULT_SETTINGS.profileCustomization;
+    const base = rawCustomization.base;
+    const colorHex = rawCustomization.colorHex;
+    const mouthChar = rawCustomization.mouthChar;
+    const showNose = rawCustomization.showNose;
+
+    const baseOk = base === 'bear' || base === 'cat' || base === 'dog' || base === 'bunny';
+    const colorOk = typeof colorHex === 'string' && (CUSTOMIZATION_COLORS as readonly string[]).includes(colorHex);
+    const mouthOk = typeof mouthChar === 'string';
+    const showNoseOk = typeof showNose === 'boolean';
+
+    if (!baseOk || !colorOk || !mouthOk || !showNoseOk) return DEFAULT_SETTINGS.profileCustomization;
+    return {
+      base,
+      colorHex,
+      mouthChar: mouthChar.slice(0, 1),
+      showNose,
+    };
+  })();
   return {
     showPregnancyInfo:
       typeof parsed.showPregnancyInfo === 'boolean' ? parsed.showPregnancyInfo : DEFAULT_SETTINGS.showPregnancyInfo,
@@ -53,6 +94,7 @@ function normalizeSettings(parsed: Partial<AppSettings> | null): AppSettings {
       parsed.profileEmoji === null || typeof parsed.profileEmoji === 'string'
         ? parsed.profileEmoji
         : DEFAULT_SETTINGS.profileEmoji,
+    profileCustomization: normalizedCustomization ?? DEFAULT_SETTINGS.profileCustomization,
     averageCycleLengthDays: clampInt(
       Number(parsed.averageCycleLengthDays),
       15,
