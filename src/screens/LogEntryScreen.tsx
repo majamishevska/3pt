@@ -10,11 +10,11 @@ import { MoodPicker } from '../components/MoodPicker';
 import { SymptomPicker } from '../components/SymptomPicker';
 import { addEntry } from '../utils/storage';
 import type { CycleEntry } from '../utils/types';
-import { palette } from '../utils/palette';
 import { phaseAccentFill, phaseScreenBg } from '../utils/phaseChrome.styles';
 import { compareISO, toDateISO } from '../utils/dates';
 import type { CyclePhaseId } from '../utils/phaseConfig';
 import { useCyclePhaseId } from '../hooks/useCyclePhaseAccent';
+import { colors } from '../utils/theme';
 import { styles } from './LogEntryScreen.styles';
 
 export default function LogEntryScreen() {
@@ -132,7 +132,7 @@ export default function LogEntryScreen() {
             onPress={onSave}
             disabled={saving || rangeDirty}
           >
-            <Ionicons name="checkmark" size={18} color={palette.black} />
+            <Ionicons name="checkmark" size={18} color={colors.text} />
             <Text style={styles.saveLabel}>{saving ? 'Saving…' : 'Save'}</Text>
           </Pressable>
         </ScrollView>

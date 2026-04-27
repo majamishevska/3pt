@@ -1,6 +1,5 @@
 import { Pressable, Text, View } from 'react-native';
-import { palette } from '../utils/palette';
-import { spacing } from '../utils/theme';
+import { colors, spacing, typography } from '../utils/theme';
 
 type Props = {
   value: number; // 1..5
@@ -14,11 +13,7 @@ export function FlowStrengthPicker({ value, onChange, label = 'Flow strength (op
     <View style={{ marginTop: spacing.sm }}>
       <Text
         style={{
-          fontSize: 11,
-          fontWeight: '700',
-          color: palette.black,
-          textTransform: 'uppercase',
-          letterSpacing: 0.7,
+          ...typography.labelCaps,
           marginBottom: spacing.xs,
         }}
       >
@@ -44,7 +39,7 @@ export function FlowStrengthPicker({ value, onChange, label = 'Flow strength (op
                     borderRadius: 8,
                     borderWidth: 2,
                     borderColor: 'rgba(17, 17, 17, 0.22)',
-                    backgroundColor: filled ? palette.black : 'transparent',
+                    backgroundColor: filled ? colors.text : 'transparent',
                   },
                   pressed && { opacity: 0.88 },
                 ]}
@@ -52,7 +47,7 @@ export function FlowStrengthPicker({ value, onChange, label = 'Flow strength (op
             );
           })}
         </View>
-        <Text style={{ fontSize: 14, fontWeight: '700', color: palette.black, opacity: 0.8 }}>
+        <Text style={{ ...typography.smallLabel, opacity: 0.8 }}>
           {v}/5
         </Text>
       </View>

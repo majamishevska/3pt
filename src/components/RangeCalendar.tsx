@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Pressable, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { compareISO, parseISODate, toDateISO } from '../utils/dates';
-import { palette } from '../utils/palette';
 import {
   applyRangeDayTap,
   canApplyRange,
@@ -18,6 +17,7 @@ import {
   type MonthCursor,
 } from '../utils/calendarMonth';
 import { styles } from './RangeCalendar.styles';
+import { colors } from '../utils/theme';
 
 const WEEKDAY_SHORT = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
@@ -144,11 +144,11 @@ export function RangeCalendar({
       <View style={styles.calendarWrap}>
         <View style={styles.header}>
           <Pressable onPress={goPrev} style={styles.navHit} accessibilityRole="button" accessibilityLabel="Previous month">
-            <Ionicons name="chevron-back" size={22} color={palette.black} />
+            <Ionicons name="chevron-back" size={22} color={colors.text} />
           </Pressable>
           <Text style={styles.headerTitle}>{formatMonthTitle(cursor)}</Text>
           <Pressable onPress={goNext} style={styles.navHit} accessibilityRole="button" accessibilityLabel="Next month">
-            <Ionicons name="chevron-forward" size={22} color={palette.black} />
+            <Ionicons name="chevron-forward" size={22} color={colors.text} />
           </Pressable>
         </View>
         <View style={styles.weekdays}>

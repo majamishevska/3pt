@@ -2,8 +2,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Redirect, router } from 'expo-router';
-import { palette } from '../utils/palette';
-import { spacing } from '../utils/theme';
+import { colors, radius, spacing, typography } from '../utils/theme';
 import { PinScreenHeader } from '../components/pin/PinScreenHeader';
 import type { BearLogoState } from '../components/pin/AnimatedBearLogo';
 import { isPinUnlockedThisSession, markPinUnlockedThisSession } from '../utils/pinGate';
@@ -77,10 +76,10 @@ export default function PinScreen() {
           style={{
             paddingVertical: spacing.lg,
             paddingHorizontal: spacing.xl,
-            borderRadius: 18,
-            backgroundColor: palette.white,
+            borderRadius: radius.lg,
+            backgroundColor: colors.surface,
             borderWidth: 1,
-            borderColor: 'rgba(17, 17, 17, 0.12)',
+            borderColor: colors.divider,
             alignItems: 'center',
             justifyContent: 'center',
           }}
@@ -95,14 +94,14 @@ export default function PinScreen() {
                     width: 14,
                     height: 14,
                     borderRadius: 7,
-                    backgroundColor: filled ? palette.black : 'rgba(17, 17, 17, 0.12)',
+                    backgroundColor: filled ? colors.text : colors.divider,
                   }}
                 />
               );
             })}
           </View>
 
-          <Text style={{ marginTop: spacing.md, fontSize: 13, color: palette.black, opacity: 0.7 }}>
+          <Text style={{ marginTop: spacing.md, ...typography.helper, fontSize: 13 }}>
             {status === 'success' ? 'Unlocked' : 'Enter your PIN'}
           </Text>
         </View>
@@ -137,10 +136,10 @@ export default function PinScreen() {
                       {
                         flex: 1,
                         height: 56,
-                        borderRadius: 16,
-                        backgroundColor: palette.white,
+                        borderRadius: radius.lg,
+                        backgroundColor: colors.surface,
                         borderWidth: 1,
-                        borderColor: 'rgba(17, 17, 17, 0.12)',
+                        borderColor: colors.divider,
                         alignItems: 'center',
                         justifyContent: 'center',
                         opacity: status === 'success' ? 0.5 : 1,
@@ -154,7 +153,7 @@ export default function PinScreen() {
                       style={{
                         fontSize: isAction ? 16 : 20,
                         fontWeight: isAction ? '800' : '900',
-                        color: palette.black,
+                        color: colors.text,
                       }}
                     >
                       {label}

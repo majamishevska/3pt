@@ -1,5 +1,5 @@
 import { Text } from 'react-native';
-import { palette } from '../../utils/palette';
+import { colors } from '../../utils/theme';
 
 type Props = {
   text?: string;
@@ -13,7 +13,7 @@ export function AppTitleText({ text = '3PT' }: Props) {
         fontSize: 20,
         fontWeight: '900',
         letterSpacing: -0.4,
-        color: palette.black,
+        color: colors.text,
       }}
     >
       {text}

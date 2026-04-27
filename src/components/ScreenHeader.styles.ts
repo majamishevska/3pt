@@ -1,14 +1,14 @@
 import { StyleSheet } from 'react-native';
-import { palette } from '../utils/palette';
+import { colors, radius, spacing, typography } from '../utils/theme';
 
 export const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(17, 17, 17, 0.12)',
+    borderBottomColor: colors.divider,
     backgroundColor: 'transparent',
   },
   backHit: {
@@ -20,10 +20,7 @@ export const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
-    fontSize: 20,
-    fontWeight: '700',
-    color: palette.black,
-    letterSpacing: -0.3,
+    ...typography.screenTitle,
   },
   actions: {
     flexDirection: 'row',
@@ -33,18 +30,17 @@ export const styles = StyleSheet.create({
   avatarOuter: {
     width: 38,
     height: 38,
-    borderRadius: 19,
-    backgroundColor: palette.white,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(17, 17, 17, 0.12)',
+    backgroundColor: 'transparent',
+    borderWidth: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
+    borderRadius: 0,
+    overflow: 'visible',
   },
   avatarImage: {
     width: 38,
     height: 38,
-    borderRadius: 19,
+    borderRadius: radius.md,
   },
   bunnyEmoji: {
     fontSize: 20,
@@ -53,10 +49,10 @@ export const styles = StyleSheet.create({
   settingsHit: {
     width: 40,
     height: 40,
-    borderRadius: 12,
-    backgroundColor: palette.white,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(17, 17, 17, 0.12)',
+    borderColor: colors.divider,
     alignItems: 'center',
     justifyContent: 'center',
   },

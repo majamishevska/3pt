@@ -1,7 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { palette } from '../utils/palette';
-import { spacing } from '../utils/theme';
+import { colors, componentStyles, radius, spacing, typography } from '../utils/theme';
 
 type Props = {
   fileName: string | null;
@@ -23,24 +22,18 @@ export function FilePickerCard({ fileName, fileSizeBytes, onPick }: Props) {
   return (
     <View
       style={{
-        backgroundColor: palette.white,
-        borderRadius: 16,
-        padding: spacing.md,
-        borderWidth: 1,
-        borderColor: 'rgba(17, 17, 17, 0.1)',
+        ...componentStyles.card,
       }}
     >
-      <Text style={{ fontSize: 15, fontWeight: '800', color: palette.black }}>Import file</Text>
-      <Text style={{ marginTop: 6, fontSize: 14, lineHeight: 20, color: palette.black, opacity: 0.85 }}>
+      <Text style={{ ...typography.sectionTitle, fontSize: 15, fontWeight: '800' }}>Import file</Text>
+      <Text style={{ marginTop: 6, ...typography.helper, fontSize: 14, lineHeight: 20 }}>
         Pick an export file from Flo, Clue, or Apple Health.
       </Text>
 
       <View style={{ marginTop: spacing.md, gap: 4 }}>
-        <Text style={{ fontSize: 13, color: palette.black, opacity: 0.7 }}>
-          {hasFile ? 'Selected' : 'No file selected'}
-        </Text>
+        <Text style={{ ...typography.helper, fontSize: 13 }}>{hasFile ? 'Selected' : 'No file selected'}</Text>
         {hasFile ? (
-          <Text style={{ fontSize: 14, fontWeight: '700', color: palette.black }}>
+          <Text style={{ ...typography.smallLabel, fontSize: 14, fontWeight: '700' }}>
             {fileName}
             {typeof fileSizeBytes === 'number' ? ` · ${formatBytes(fileSizeBytes)}` : ''}
           </Text>
@@ -56,8 +49,8 @@ export function FilePickerCard({ fileName, fileSizeBytes, onPick }: Props) {
             marginTop: spacing.md,
             paddingVertical: spacing.sm,
             paddingHorizontal: spacing.md,
-            borderRadius: 12,
-            backgroundColor: palette.black,
+            borderRadius: radius.md,
+            backgroundColor: colors.text,
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
@@ -66,8 +59,10 @@ export function FilePickerCard({ fileName, fileSizeBytes, onPick }: Props) {
           pressed && { opacity: 0.9 },
         ]}
       >
-        <Ionicons name="document-text-outline" size={18} color={palette.white} />
-        <Text style={{ color: palette.white, fontWeight: '800', fontSize: 15 }}>{hasFile ? 'Choose another file' : 'Choose file'}</Text>
+        <Ionicons name="document-text-outline" size={18} color={colors.surface} />
+        <Text style={{ ...typography.smallLabel, color: colors.surface, fontWeight: '800', fontSize: 15 }}>
+          {hasFile ? 'Choose another file' : 'Choose file'}
+        </Text>
       </Pressable>
     </View>
   );

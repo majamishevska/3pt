@@ -1,13 +1,13 @@
 import { StyleSheet } from 'react-native';
-import { palette } from '../utils/palette';
+import { colors, radius, spacing } from '../utils/theme';
 
 export const styles = StyleSheet.create({
   /** Background color comes from `phaseScreenBg[phaseId]` in BottomBar (matches screens). */
   safe: {},
   wrap: {
     backgroundColor: 'transparent',
-    paddingHorizontal: 18,
-    paddingTop: 10,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
   },
   row: {
     backgroundColor: 'transparent',
@@ -19,13 +19,13 @@ export const styles = StyleSheet.create({
   pill: {
     flex: 1,
     height: 56,
-    borderRadius: 28,
-    backgroundColor: palette.black,
+    borderRadius: radius.pill,
+    backgroundColor: colors.text,
     paddingHorizontal: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    shadowColor: palette.black,
+    shadowColor: colors.text,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.18,
     shadowRadius: 18,
@@ -42,9 +42,9 @@ export const styles = StyleSheet.create({
   plusOuter: {
     width: 56,
     height: 56,
-    borderRadius: 28,
+    borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: palette.black,
+    backgroundColor: colors.text,
   },
 });

@@ -151,6 +151,15 @@ function monthNotes(entries: CycleEntry[], month: MonthSpec): { label: string; n
   const monthStart = startOfMonthISO(month.year, month.monthIndex0);
   const monthEnd = endOfMonthISO(month.year, month.monthIndex0);
   const out: { label: string; note: string }[] = [];
+
+  function fmtShort(iso: string): string {
+    try {
+      return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    } catch {
+      return iso;
+    }
+  }
+
   for (const e of entries) {
     const note = String(e.notes ?? '').trim();
     if (!note) continue;
@@ -158,7 +167,7 @@ function monthNotes(entries: CycleEntry[], month: MonthSpec): { label: string; n
     const hi = compareISO(e.periodStartDate, e.periodEndDate) <= 0 ? e.periodEndDate : e.periodStartDate;
     const overlaps = compareISO(lo, monthEnd) <= 0 && compareISO(hi, monthStart) >= 0;
     if (!overlaps) continue;
-    const label = lo === hi ? lo : `${lo} – ${hi}`;
+    const label = lo === hi ? fmtShort(lo) : `${fmtShort(lo)} – ${fmtShort(hi)}`;
     out.push({ label, note });
   }
   out.sort((a, b) => compareISO(a.label.slice(0, 10), b.label.slice(0, 10)));
@@ -181,9 +190,7 @@ function renderMonthPage(args: {
       : `<div class="noteList">
 ${notesToShow
   .map(
-    (n) => `<div class="noteItem"><span class="noteWhen">${escapeHtml(n.label)}</span><span class="noteText">${escapeHtml(
-      n.note,
-    )}</span></div>`,
+    (n) => `<div class="noteItem"><span class="noteLine">${escapeHtml(n.label)} — ${escapeHtml(n.note)}</span></div>`,
   )
   .join('')}
 ${more > 0 ? `<div class="noteMore">+ ${more} more</div>` : ``}
@@ -446,9 +453,8 @@ export async function buildPeriodCalendarHtml(args: {
       .notesCard { margin-top: 8px; }
       .noteEmpty { font-size: 11px; color: rgba(17,17,17,0.65); margin-bottom: 8px; }
       .noteList { display: grid; gap: 6px; margin-bottom: 10px; }
-      .noteItem { display: grid; grid-template-columns: 105px 1fr; gap: 10px; font-size: 11px; line-height: 16px; }
-      .noteWhen { font-weight: 800; color: rgba(17,17,17,0.82); }
-      .noteText { color: rgba(17,17,17,0.82); }
+      .noteItem { font-size: 11px; line-height: 16px; }
+      .noteLine { color: rgba(17,17,17,0.82); }
       .noteMore { font-size: 11px; color: rgba(17,17,17,0.65); }
       .noteLines { display: grid; gap: 8px; }
       .noteLine { border-bottom: 1px solid rgba(17,17,17,0.14); height: 10px; }

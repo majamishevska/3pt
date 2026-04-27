@@ -10,6 +10,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="settings" />
+        <Stack.Screen name="customization" />
         <Stack.Screen name="edit/[id]" />
         <Stack.Screen name="import" />
         <Stack.Screen name="pin" />

@@ -1,5 +1,5 @@
 import type { CycleEntry } from '../../utils/types';
-import { compareISO, toDateISO } from '../../utils/dates';
+import { compareISO } from '../../utils/dates';
 import type { ImportInspection, ImportResult, ImportSelection } from '../types';
 
 function isoFromAppleDate(s: string): string | null {

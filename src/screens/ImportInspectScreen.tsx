@@ -9,8 +9,6 @@ import { ScreenHeader } from '../components/ScreenHeader';
 import { FilePickerCard } from '../components/FilePickerCard';
 import { ChecklistRow } from '../components/ChecklistRow';
 import { PreviewList } from '../components/PreviewList';
-import { palette } from '../utils/palette';
-import { spacing } from '../utils/theme';
 import { inspectImportWithSource, importWithSource } from '../import';
 import type { DetectedSource, ImportCategoryId, ImportInspection, ImportSelection } from '../import/types';
 import { addEntriesBulk } from '../utils/storage';
@@ -20,6 +18,8 @@ import type { CyclePhaseId } from '../utils/phaseConfig';
 import { phaseAccentFill, phaseScreenBg } from '../utils/phaseChrome.styles';
 import type { CycleEntry } from '../utils/types';
 import { compareISO } from '../utils/dates';
+import { colors } from '../utils/theme';
+import { styles } from './ImportInspectScreen.styles';
 
 function defaultSelectionFromInspection(inspection: ImportInspection | null): ImportSelection {
   return {
@@ -31,13 +31,6 @@ function defaultSelectionFromInspection(inspection: ImportInspection | null): Im
 }
 
 type ImportSourceChoice = 'flo' | 'clue' | 'appleHealth' | 'threept';
-
-function displaySourceLabel(s: ImportSourceChoice): string {
-  if (s === 'appleHealth') return 'Apple Health';
-  if (s === 'threept') return '3PT export';
-  if (s === 'flo') return 'Flo';
-  return 'Clue';
-}
 
 function safeText(s: unknown): string {
   return typeof s === 'string' ? s : '';
@@ -333,17 +326,13 @@ export default function ImportInspectScreen() {
   }, [fileName, inspection, raw, selection, source]);
 
   return (
-    <SafeAreaView style={[{ flex: 1 }, phaseScreenBg[phaseId]]} edges={['top']}>
+    <SafeAreaView style={[styles.root, phaseScreenBg[phaseId]]} edges={['top']}>
       <ScreenHeader title="Import" showBack />
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xl * 2 }} showsVerticalScrollIndicator={false}>
-        <Text style={{ fontSize: 14, lineHeight: 20, color: palette.black, opacity: 0.82 }}>
-          Choose where you’re importing from. Then pick a file and import.
-        </Text>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <Text style={styles.intro}>Choose where you’re importing from. Then pick a file and import.</Text>
 
-        <Text style={{ marginTop: spacing.lg, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, textTransform: 'uppercase', color: palette.black }}>
-          Source
-        </Text>
-        <View style={{ marginTop: spacing.sm, gap: spacing.sm }}>
+        <Text style={styles.sectionLabel}>Source</Text>
+        <View style={styles.optionList}>
           {([
             { id: 'flo', title: 'Flo', body: 'Import your Flo export file.' },
             { id: 'clue', title: 'Clue', body: 'Import your Clue export file.' },
@@ -359,68 +348,44 @@ export default function ImportInspectScreen() {
                 accessibilityLabel={`Import from ${opt.title}`}
                 onPress={() => onChooseSource(opt.id)}
                 style={({ pressed }) => [
-                  {
-                    backgroundColor: palette.white,
-                    borderRadius: 16,
-                    padding: spacing.md,
-                    borderWidth: 2,
-                    borderColor: selected ? palette.black : 'rgba(17, 17, 17, 0.1)',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: spacing.md,
-                  },
+                  styles.optionCard,
+                  selected && styles.optionCardSelected,
                   pressed && { opacity: 0.92 },
                 ]}
               >
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 16, fontWeight: '900', color: palette.black }}>{opt.title}</Text>
-                  <Text style={{ marginTop: 4, fontSize: 13, lineHeight: 18, color: palette.black, opacity: 0.78 }}>{opt.body}</Text>
+                <View style={styles.optionText}>
+                  <Text style={styles.optionTitle}>{opt.title}</Text>
+                  <Text style={styles.optionBody}>{opt.body}</Text>
                 </View>
                 {opt.id === 'appleHealth' ? (
-                  <Ionicons name="logo-apple" size={20} color={palette.black} />
+                  <Ionicons name="logo-apple" size={20} color={colors.text} />
                 ) : opt.id === 'threept' ? (
-                  <Ionicons name="repeat-outline" size={20} color={palette.black} />
+                  <Ionicons name="repeat-outline" size={20} color={colors.text} />
                 ) : (
-                  <Ionicons name="cloud-upload-outline" size={20} color={palette.black} />
+                  <Ionicons name="cloud-upload-outline" size={20} color={colors.text} />
                 )}
               </Pressable>
             );
           })}
         </View>
 
-        <Text style={{ marginTop: spacing.lg, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, textTransform: 'uppercase', color: palette.black }}>
-          File
-        </Text>
-        <View style={{ marginTop: spacing.sm }}>
+        <Text style={styles.sectionLabel}>File</Text>
+        <View style={styles.fileCardWrap}>
           <FilePickerCard fileName={fileName} fileSizeBytes={fileSize} onPick={pickFile} />
         </View>
 
         {source === 'threept' && threePTPreview ? (
           <>
-            <Text style={{ marginTop: spacing.lg, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, textTransform: 'uppercase', color: palette.black }}>
-              Preview
-            </Text>
-            <View
-              style={{
-                marginTop: spacing.sm,
-                backgroundColor: palette.white,
-                borderRadius: 16,
-                padding: spacing.md,
-                borderWidth: 1,
-                borderColor: 'rgba(17, 17, 17, 0.1)',
-              }}
-            >
-              <Text style={{ fontSize: 15, fontWeight: '900', color: palette.black }}>
+            <Text style={styles.sectionLabel}>Preview</Text>
+            <View style={styles.infoCard}>
+              <Text style={styles.infoTitle}>
                 {threePTPreview.count} {threePTPreview.count === 1 ? 'period' : 'periods'} found
               </Text>
               {threePTPreview.span ? (
-                <Text style={{ marginTop: 4, fontSize: 13, color: palette.black, opacity: 0.78 }}>
-                  {threePTPreview.span.startISO} → {threePTPreview.span.endISO}
-                </Text>
+                <Text style={styles.infoSub}>{threePTPreview.span.startISO} → {threePTPreview.span.endISO}</Text>
               ) : null}
               {threePTPreview.count === 0 ? (
-                <Text style={{ marginTop: spacing.sm, fontSize: 13, lineHeight: 18, color: palette.black, opacity: 0.78 }}>
+                <Text style={styles.optionBody}>
                   This doesn’t look like a 3PT export file yet. Try a JSON or CSV you exported from this app.
                 </Text>
               ) : null}
@@ -430,22 +395,11 @@ export default function ImportInspectScreen() {
 
         {source !== 'threept' && inspection ? (
           <>
-            <Text style={{ marginTop: spacing.lg, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, textTransform: 'uppercase', color: palette.black }}>
-              What we found
-            </Text>
-            <View
-              style={{
-                marginTop: spacing.sm,
-                backgroundColor: palette.white,
-                borderRadius: 16,
-                padding: spacing.md,
-                borderWidth: 1,
-                borderColor: 'rgba(17, 17, 17, 0.1)',
-              }}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm }}>
+            <Text style={styles.sectionLabel}>What we found</Text>
+            <View style={styles.infoCard}>
+              <View style={styles.infoTitleRow}>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 15, fontWeight: '900', color: palette.black }}>
+                  <Text style={styles.infoTitle}>
                     {inspection.source === 'appleHealth'
                       ? 'Apple Health export'
                       : inspection.source === 'clue'
@@ -455,43 +409,30 @@ export default function ImportInspectScreen() {
                           : 'Unknown export'}
                   </Text>
                   {inspection.stats.span ? (
-                    <Text style={{ marginTop: 4, fontSize: 13, color: palette.black, opacity: 0.78 }}>
-                      {inspection.stats.span.startISO} → {inspection.stats.span.endISO}
-                    </Text>
+                    <Text style={styles.infoSub}>{inspection.stats.span.startISO} → {inspection.stats.span.endISO}</Text>
                   ) : (
-                    <Text style={{ marginTop: 4, fontSize: 13, color: palette.black, opacity: 0.78 }}>No date span available.</Text>
+                    <Text style={styles.infoSub}>No date span available.</Text>
                   )}
                 </View>
-                <View style={{ paddingHorizontal: 10, paddingVertical: 8, borderRadius: 999, backgroundColor: 'rgba(17, 17, 17, 0.06)' }}>
-                  <Text style={{ fontSize: 13, fontWeight: '800', color: palette.black }}>{inspection.stats.periodsFound} periods</Text>
+                <View style={styles.pillBadge}>
+                  <Text style={styles.pillBadgeText}>{inspection.stats.periodsFound} periods</Text>
                 </View>
               </View>
 
               {inspection.issues.length > 0 ? (
-                <View style={{ marginTop: spacing.md, gap: 6 }}>
+                <View style={styles.issuesList}>
                   {inspection.issues.map((it) => (
-                    <View key={it} style={{ flexDirection: 'row', gap: 8 }}>
-                      <Text style={{ color: palette.black, opacity: 0.6 }}>•</Text>
-                      <Text style={{ flex: 1, fontSize: 13, lineHeight: 18, color: palette.black, opacity: 0.85 }}>{it}</Text>
+                    <View key={it} style={styles.issueRow}>
+                      <Text style={styles.issueBullet}>•</Text>
+                      <Text style={styles.issueText}>{it}</Text>
                     </View>
                   ))}
                 </View>
               ) : null}
             </View>
 
-            <Text style={{ marginTop: spacing.lg, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, textTransform: 'uppercase', color: palette.black }}>
-              Choose what to import
-            </Text>
-            <View
-              style={{
-                marginTop: spacing.sm,
-                backgroundColor: palette.white,
-                borderRadius: 16,
-                padding: spacing.md,
-                borderWidth: 1,
-                borderColor: 'rgba(17, 17, 17, 0.1)',
-              }}
-            >
+            <Text style={styles.sectionLabel}>Choose what to import</Text>
+            <View style={styles.infoCard}>
               {inspection.categories.map((cat, idx) => (
                 <View key={cat.id}>
                   <ChecklistRow
@@ -509,15 +450,15 @@ export default function ImportInspectScreen() {
                     style={({ pressed }) => [{ paddingVertical: 6 }, pressed && { opacity: 0.85 }]}
                   >
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                      <Ionicons name={expanded[cat.id] ? 'chevron-up' : 'chevron-down'} size={16} color={palette.black} />
-                      <Text style={{ fontSize: 13, fontWeight: '700', color: palette.black, opacity: 0.8 }}>
+                      <Ionicons name={expanded[cat.id] ? 'chevron-up' : 'chevron-down'} size={16} color={colors.text} />
+                      <Text style={styles.optionBody}>
                         {expanded[cat.id] ? 'Hide preview' : 'Show preview'}
                       </Text>
                     </View>
                   </Pressable>
 
                   {expanded[cat.id] ? <PreviewList items={cat.preview} /> : null}
-                  {idx < inspection.categories.length - 1 ? <View style={{ height: 1, backgroundColor: 'rgba(17, 17, 17, 0.08)', marginVertical: spacing.sm }} /> : null}
+                  {idx < inspection.categories.length - 1 ? <View style={styles.divider} /> : null}
                 </View>
               ))}
             </View>
@@ -528,22 +469,13 @@ export default function ImportInspectScreen() {
               onPress={doImport}
               disabled={!canImport || importing}
               style={({ pressed }) => [
-                {
-                  marginTop: spacing.lg,
-                  paddingVertical: spacing.md,
-                  borderRadius: 12,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexDirection: 'row',
-                  gap: 8,
-                  backgroundColor: palette.black,
-                  opacity: !canImport || importing ? 0.45 : 1,
-                },
+                styles.darkButton,
+                (!canImport || importing) && styles.primaryButtonDisabled,
                 pressed && canImport && !importing && { opacity: 0.9 },
               ]}
             >
-              <Ionicons name="download-outline" size={18} color={palette.white} />
-              <Text style={{ color: palette.white, fontSize: 16, fontWeight: '900' }}>{importing ? 'Importing…' : 'Import'}</Text>
+              <Ionicons name="download-outline" size={18} color={colors.surface} />
+              <Text style={styles.darkButtonLabel}>{importing ? 'Importing…' : 'Import'}</Text>
             </Pressable>
 
             <Pressable
@@ -551,21 +483,13 @@ export default function ImportInspectScreen() {
               accessibilityLabel="Open history"
               onPress={() => router.push('/history' as any)}
               style={({ pressed }) => [
-                {
-                  marginTop: spacing.sm,
-                  paddingVertical: spacing.md,
-                  borderRadius: 12,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexDirection: 'row',
-                  gap: 8,
-                  backgroundColor: phaseFill.backgroundColor ?? 'rgba(17,17,17,0.06)',
-                },
+                styles.secondaryButton,
+                { backgroundColor: phaseFill.backgroundColor ?? 'rgba(17,17,17,0.06)' },
                 pressed && { opacity: 0.92 },
               ]}
             >
-              <Ionicons name="time-outline" size={18} color={palette.black} />
-              <Text style={{ color: palette.black, fontSize: 16, fontWeight: '900' }}>History</Text>
+              <Ionicons name="time-outline" size={18} color={colors.text} />
+              <Text style={styles.secondaryLabel}>History</Text>
             </Pressable>
           </>
         ) : null}
@@ -577,29 +501,18 @@ export default function ImportInspectScreen() {
             onPress={doImport}
             disabled={!canImport || importing}
             style={({ pressed }) => [
-              {
-                marginTop: spacing.lg,
-                paddingVertical: spacing.md,
-                borderRadius: 12,
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexDirection: 'row',
-                gap: 8,
-                backgroundColor: palette.black,
-                opacity: !canImport || importing ? 0.45 : 1,
-              },
+              styles.darkButton,
+              (!canImport || importing) && styles.primaryButtonDisabled,
               pressed && canImport && !importing && { opacity: 0.9 },
             ]}
           >
-            <Ionicons name="download-outline" size={18} color={palette.white} />
-            <Text style={{ color: palette.white, fontSize: 16, fontWeight: '900' }}>{importing ? 'Importing…' : 'Import'}</Text>
+            <Ionicons name="download-outline" size={18} color={colors.surface} />
+            <Text style={styles.darkButtonLabel}>{importing ? 'Importing…' : 'Import'}</Text>
           </Pressable>
         ) : null}
 
         {fileUri && source !== 'threept' && !inspection ? (
-          <Text style={{ marginTop: spacing.lg, color: palette.black, opacity: 0.8 }}>
-            Selected file couldn’t be inspected yet. Try a different export.
-          </Text>
+          <Text style={styles.errorNote}>Selected file couldn’t be inspected yet. Try a different export.</Text>
         ) : null}
       </ScrollView>
     </SafeAreaView>

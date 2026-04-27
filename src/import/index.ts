@@ -1,9 +1,8 @@
-import type { ImportInspection, ImportResult, ImportSelection } from './types';
+import type { DetectedSource, ImportInspection, ImportResult, ImportSelection } from './types';
 import { detectSource } from './detect';
 import { inspectAppleHealthXml, importAppleHealthXml } from './adapters/appleHealthXml';
 import { inspectClue, importClue } from './adapters/clue';
 import { inspectFlo, importFlo } from './adapters/flo';
-import type { DetectedSource } from './types';
 
 function inspectForSource(source: DetectedSource, raw: string, fileName: string): ImportInspection {
   if (source === 'appleHealth') return inspectAppleHealthXml(raw, fileName);

@@ -6,7 +6,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { deleteEntry, loadEntries } from '../utils/storage';
 import type { CycleEntry } from '../utils/types';
-import { palette } from '../utils/palette';
 import { phaseAccentHex, phaseScreenBg } from '../utils/phaseChrome.styles';
 import { addDaysISO, compareISO, toDateISO } from '../utils/dates';
 import { formatPeriodLengthLabel, formatPeriodRangeLabel, periodLengthDaysInclusive } from '../utils/historyFormat';
@@ -17,6 +16,7 @@ import { router } from 'expo-router';
 import { buildMonthWeeks, formatMonthTitle, isoFromDay, shiftMonth, type MonthCursor } from '../utils/calendarMonth';
 import { loadSettings, type AppSettings } from '../utils/settingsStorage';
 import { predictedDateSet, predictPeriodsWithinRange } from '../utils/predictions';
+import { colors, componentStyles, radius, spacing, typography } from '../utils/theme';
 
 type TopMode = 'logs' | 'predictions';
 type ViewMode = 'month' | 'year' | 'list';
@@ -235,7 +235,7 @@ export default function HistoryScreen() {
         onPress={() => setMonthCursor((c) => shiftMonth(c, -1))}
         style={({ pressed }) => [styles.navBtn, pressed && { opacity: 0.9 }]}
       >
-        <Ionicons name="chevron-back" size={18} color={palette.black} />
+        <Ionicons name="chevron-back" size={18} color={colors.text} />
       </Pressable>
       <Text style={styles.navTitle}>{formatMonthTitle(monthCursor)}</Text>
       <Pressable
@@ -244,7 +244,7 @@ export default function HistoryScreen() {
         onPress={() => setMonthCursor((c) => shiftMonth(c, 1))}
         style={({ pressed }) => [styles.navBtn, pressed && { opacity: 0.9 }]}
       >
-        <Ionicons name="chevron-forward" size={18} color={palette.black} />
+        <Ionicons name="chevron-forward" size={18} color={colors.text} />
       </Pressable>
     </View>
   );
@@ -257,7 +257,7 @@ export default function HistoryScreen() {
         onPress={() => setYearCursor((y) => y - 1)}
         style={({ pressed }) => [styles.navBtn, pressed && { opacity: 0.9 }]}
       >
-        <Ionicons name="chevron-back" size={18} color={palette.black} />
+        <Ionicons name="chevron-back" size={18} color={colors.text} />
       </Pressable>
       <Text style={styles.navTitle}>{yearTitle(yearCursor)}</Text>
       <Pressable
@@ -266,7 +266,7 @@ export default function HistoryScreen() {
         onPress={() => setYearCursor((y) => y + 1)}
         style={({ pressed }) => [styles.navBtn, pressed && { opacity: 0.9 }]}
       >
-        <Ionicons name="chevron-forward" size={18} color={palette.black} />
+        <Ionicons name="chevron-forward" size={18} color={colors.text} />
       </Pressable>
     </View>
   );
@@ -287,7 +287,7 @@ export default function HistoryScreen() {
             ListHeaderComponent={header}
             ListEmptyComponent={
               <View style={styles.empty}>
-                <Ionicons name="leaf-outline" size={40} color={palette.black} style={styles.emptyIcon} />
+                <Ionicons name="leaf-outline" size={40} color={colors.text} style={styles.emptyIcon} />
                 <Text style={styles.emptyTitle}>No entries yet</Text>
                 <Text style={styles.emptyBody}>When you save a range, it will show up here.</Text>
               </View>
@@ -319,7 +319,7 @@ export default function HistoryScreen() {
                         style={({ pressed }) => [styles.editHit, pressed && { opacity: 0.88 }]}
                         hitSlop={8}
                       >
-                        <Ionicons name="create-outline" size={18} color={palette.black} />
+                        <Ionicons name="create-outline" size={18} color={colors.text} />
                       </Pressable>
                       <Pressable
                         accessibilityRole="button"
@@ -343,7 +343,7 @@ export default function HistoryScreen() {
                         style={({ pressed }) => [styles.editHit, pressed && { opacity: 0.88 }]}
                         hitSlop={8}
                       >
-                        <Ionicons name="trash-outline" size={18} color={palette.black} />
+                        <Ionicons name="trash-outline" size={18} color={colors.text} />
                       </Pressable>
                     </View>
                   </View>
@@ -355,7 +355,7 @@ export default function HistoryScreen() {
                           key={idx}
                           style={[
                             styles.flowDot,
-                            { backgroundColor: idx + 1 <= flow ? palette.black : 'transparent' },
+                            { backgroundColor: idx + 1 <= flow ? colors.text : 'transparent' },
                           ]}
                         />
                       ))}
@@ -389,7 +389,7 @@ export default function HistoryScreen() {
             ListHeaderComponent={header}
             ListEmptyComponent={
               <View style={styles.empty}>
-                <Ionicons name="sparkles-outline" size={40} color={palette.black} style={styles.emptyIcon} />
+                <Ionicons name="sparkles-outline" size={40} color={colors.text} style={styles.emptyIcon} />
                 <Text style={styles.emptyTitle}>No predictions yet</Text>
                 <Text style={styles.emptyBody}>Add at least one logged period to generate predictions.</Text>
               </View>
@@ -527,25 +527,22 @@ export default function HistoryScreen() {
             left: 0,
             right: 0,
             bottom: 0,
-            padding: 12,
-            paddingBottom: 12,
+            padding: spacing.md,
           }}
         >
           <View
             style={{
-              backgroundColor: palette.white,
-              borderRadius: 18,
-              borderWidth: 1,
-              borderColor: 'rgba(17, 17, 17, 0.10)',
-              padding: 14,
+              ...componentStyles.card,
+              borderRadius: radius.lg,
+              padding: spacing.md,
             }}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
               <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={{ fontSize: 14, fontWeight: '900', color: palette.black }}>
+                <Text style={{ ...typography.smallLabel, fontWeight: '900' }}>
                   {new Date(selectedISO).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                 </Text>
-                <Text style={{ marginTop: 4, fontSize: 12, color: palette.black, opacity: 0.7 }}>
+                <Text style={{ marginTop: 4, ...typography.helper }}>
                   Flow {Math.min(5, Math.max(1, Math.round(selectedEntry.flowStrength ?? 3)))}/5
                 </Text>
               </View>
@@ -556,27 +553,24 @@ export default function HistoryScreen() {
                 onPress={() => router.push(`/edit/${selectedEntry.id}` as any)}
                 style={({ pressed }) => [
                   {
-                    paddingVertical: 10,
-                    paddingHorizontal: 14,
-                    borderRadius: 999,
+                    ...componentStyles.pill,
+                    borderColor: colors.text,
                     borderWidth: 2,
-                    borderColor: palette.black,
-                    backgroundColor: palette.white,
                   },
                   pressed && { opacity: 0.9 },
                 ]}
               >
-                <Text style={{ fontSize: 13, fontWeight: '900', color: palette.black }}>Edit</Text>
+                <Text style={{ ...typography.smallLabel, fontWeight: '900' }}>Edit</Text>
               </Pressable>
             </View>
 
             {selectedEntry.symptoms?.length ? (
-              <Text style={{ marginTop: 10, fontSize: 13, color: palette.black, opacity: 0.82 }}>
+              <Text style={{ marginTop: spacing.sm, ...typography.helper, color: colors.textSecondary }}>
                 Symptoms: {selectedEntry.symptoms.join(', ')}
               </Text>
             ) : null}
             {selectedEntry.notes ? (
-              <Text style={{ marginTop: 8, fontSize: 13, lineHeight: 18, color: palette.black, opacity: 0.82 }}>
+              <Text style={{ marginTop: spacing.sm, ...typography.helper, color: colors.textSecondary }}>
                 Notes: {selectedEntry.notes}
               </Text>
             ) : null}
@@ -590,7 +584,7 @@ export default function HistoryScreen() {
               }}
               style={({ pressed }) => [{ marginTop: 12, alignSelf: 'flex-start' }, pressed && { opacity: 0.85 }]}
             >
-              <Text style={{ fontSize: 12, fontWeight: '800', color: palette.black, opacity: 0.65 }}>Close</Text>
+              <Text style={{ ...typography.labelCaps, textTransform: 'none' }}>Close</Text>
             </Pressable>
           </View>
         </View>

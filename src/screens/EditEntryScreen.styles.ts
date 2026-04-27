@@ -1,50 +1,30 @@
 import { StyleSheet } from 'react-native';
-import { palette } from '../utils/palette';
-import { spacing } from '../utils/theme';
-
-const border = {
-  borderWidth: StyleSheet.hairlineWidth,
-  borderColor: 'rgba(17, 17, 17, 0.1)',
-} as const;
+import { colors, componentStyles, layout, spacing, typography } from '../utils/theme';
 
 export const styles = StyleSheet.create({
   root: { flex: 1 },
   flex: { flex: 1 },
-  content: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
-  subtitle: { marginTop: 4, fontSize: 15, lineHeight: 21, color: palette.black },
+  content: { paddingHorizontal: layout.pagePaddingX, paddingTop: layout.pagePaddingTop, paddingBottom: layout.pagePaddingBottom },
+  subtitle: { marginTop: 4, ...typography.body },
   section: {
     marginTop: spacing.lg,
-    gap: 12,
+    gap: layout.sectionGap,
   },
   card: {
-    backgroundColor: palette.white,
-    borderRadius: 16,
-    padding: spacing.md,
-    ...border,
+    ...componentStyles.card,
   },
   label: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: palette.black,
-    textTransform: 'uppercase',
-    letterSpacing: 0.7,
+    ...typography.labelCaps,
     marginBottom: spacing.xs,
     marginTop: spacing.sm,
   },
   input: {
-    backgroundColor: palette.white,
-    ...border,
-    borderRadius: 12,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: 16,
-    color: palette.black,
+    ...componentStyles.input,
   },
   notes: { minHeight: 96, textAlignVertical: 'top', paddingTop: spacing.sm },
   save: {
     marginTop: spacing.lg,
-    paddingVertical: spacing.md,
-    borderRadius: 12,
+    ...componentStyles.buttonPrimary,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
@@ -52,6 +32,6 @@ export const styles = StyleSheet.create({
   },
   savePressed: { opacity: 0.92 },
   saveDisabled: { opacity: 0.6 },
-  saveLabel: { color: palette.black, fontSize: 16, fontWeight: '700' },
+  saveLabel: { ...typography.button, color: colors.text },
 });
 

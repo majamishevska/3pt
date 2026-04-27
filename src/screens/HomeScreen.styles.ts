@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { palette } from '../utils/palette';
+import { colors, componentStyles, layout, spacing, typography } from '../utils/theme';
 import { CYCLE_RING_OUTER_DISC } from '../utils/cycleRingLayout';
 
 const R = CYCLE_RING_OUTER_DISC / 2;
@@ -7,12 +7,12 @@ const R = CYCLE_RING_OUTER_DISC / 2;
 export const styles = StyleSheet.create({
   root: { flex: 1 },
   content: {
-    padding: 24,
-    paddingBottom: 64,
-    paddingTop: 10,
+    paddingHorizontal: layout.pagePaddingX,
+    paddingTop: layout.pagePaddingTop,
+    paddingBottom: layout.pagePaddingBottom,
   },
-  greeting: { fontSize: 15, fontWeight: '500', color: palette.black, letterSpacing: 0.2 },
-  dateLine: { marginTop: 4, fontSize: 26, fontWeight: '700', color: palette.black, letterSpacing: -0.4 },
+  greeting: { ...typography.body, letterSpacing: 0.2 },
+  dateLine: { marginTop: 4, ...typography.screenTitleLg },
 
   /** Square frame; white disc + ring share the same center (concentric outer barrier). */
   ringStack: {
@@ -30,7 +30,7 @@ export const styles = StyleSheet.create({
     width: CYCLE_RING_OUTER_DISC,
     height: CYCLE_RING_OUTER_DISC,
     borderRadius: R,
-    backgroundColor: palette.white,
+    backgroundColor: colors.surface,
     zIndex: 0,
   },
   ringForeground: {
@@ -40,23 +40,16 @@ export const styles = StyleSheet.create({
     zIndex: 1,
   },
 
-  section: { marginTop: 8, gap: 12 },
+  section: { marginTop: spacing.sm, gap: layout.sectionGap },
   card: {
     width: '100%',
-    borderRadius: 16,
-    padding: 16,
-    backgroundColor: palette.white,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(17, 17, 17, 0.1)',
+    ...componentStyles.card,
   },
   cardTitleSpaced: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: palette.black,
-    textTransform: 'uppercase',
+    ...typography.labelCaps,
     letterSpacing: 0.8,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
-  cardValue: { fontSize: 16, fontWeight: '800', color: palette.black, letterSpacing: -0.2, lineHeight: 22 },
-  cardSubtitle: { marginTop: 4, fontSize: 12, color: palette.black, lineHeight: 17 },
+  cardValue: { ...typography.sectionTitle, lineHeight: 22 },
+  cardSubtitle: { marginTop: 4, ...typography.helper },
 });

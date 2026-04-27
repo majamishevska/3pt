@@ -10,12 +10,11 @@ import { router } from 'expo-router';
 import { ScreenHeader } from '../components/ScreenHeader';
 import type { CyclePhaseId } from '../utils/phaseConfig';
 import { useCyclePhaseId } from '../hooks/useCyclePhaseAccent';
-import { phaseAccentFill, phaseScreenBg } from '../utils/phaseChrome.styles';
+import { phaseScreenBg } from '../utils/phaseChrome.styles';
 import { compareISO, toDateISO } from '../utils/dates';
 import { filterEntriesByDateRange, formatExport } from '../utils/exportEntries';
-import { palette } from '../utils/palette';
 import { loadEntries } from '../utils/storage';
-import { spacing } from '../utils/theme';
+import { colors, spacing } from '../utils/theme';
 import { friendlyDocumentsHint, writeExportToDocuments } from '../utils/writeExportFile';
 import { documentDirectory } from 'expo-file-system/legacy';
 import { formatISOForInput, parseUserDateToISO, validateStartEnd } from '../utils/dateRangeInputs';
@@ -23,6 +22,7 @@ import { deleteAllLocalData } from '../utils/deleteAllData';
 import { styles } from './PrivacyAuditScreen.styles';
 import { loadSettings } from '../utils/settingsStorage';
 import { generatePeriodCalendarPdf } from '../pdf/generatePdf';
+import { useAppSettings } from '../hooks/useAppSettings';
 
 function pathForDisplay(uri: string): string {
   try {
@@ -34,14 +34,15 @@ function pathForDisplay(uri: string): string {
 
 export default function PrivacyAuditScreen() {
   const phaseId = useCyclePhaseId() as CyclePhaseId;
-  const phaseFill = phaseAccentFill[phaseId];
   const appName = Constants.expoConfig?.name ?? 'this app';
+  const { settings } = useAppSettings();
+  const avatarHex = settings?.profileCustomization?.colorHex ?? colors.green;
+  const avatarFill = { backgroundColor: avatarHex };
 
   const [startText, setStartText] = useState(() => toDateISO(new Date()));
   const [endText, setEndText] = useState(() => toDateISO(new Date()));
   const [exportError, setExportError] = useState<string | null>(null);
   const [exportFormat, setExportFormat] = useState<'json' | 'csv' | 'pdf'>('json');
-  const [exportFolderUri, setExportFolderUri] = useState<string | null>(null);
   const [lastExport, setLastExport] = useState<{ fileName: string; fileUri: string; folderUri: string } | null>(
     null,
   );
@@ -66,9 +67,9 @@ export default function PrivacyAuditScreen() {
       setEndText(formatISOForInput(max));
     }
     if (documentDirectory) {
-      setExportFolderUri(`${documentDirectory}exports`);
+      // Exports go to Documents/exports; we keep the folderUri on `lastExport`.
     } else {
-      setExportFolderUri(null);
+      // No document directory exposed on this platform.
     }
     setExportError(null);
   }, []);
@@ -131,7 +132,6 @@ export default function PrivacyAuditScreen() {
       if (exportFormat === 'pdf') {
         const settings = await loadSettings();
         const { fileUri, fileName, folderUri } = await generatePeriodCalendarPdf({ settings, entries });
-        setExportFolderUri(folderUri);
         setLastExport({ fileName, fileUri, folderUri });
         const available = await Sharing.isAvailableAsync();
         if (available) {
@@ -146,7 +146,6 @@ export default function PrivacyAuditScreen() {
       const payload = formatExport(filtered, exportFormat);
       const ext = exportFormat === 'csv' ? 'csv' : 'json';
       const { fileUri, fileName, folderUri } = await writeExportToDocuments(payload, ext);
-      setExportFolderUri(folderUri);
       setLastExport({ fileName, fileUri, folderUri });
       const available = await Sharing.isAvailableAsync();
       if (available) {
@@ -180,17 +179,23 @@ export default function PrivacyAuditScreen() {
         <Text style={styles.section}>Import your data</Text>
         <View style={styles.card}>
           <Text style={styles.desc}>Bring in period history from other apps, or from a previous 3PT export.</Text>
-          <View style={{ marginTop: spacing.md }}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Import"
-              onPress={() => router.push('/import' as any)}
-              style={({ pressed }) => [styles.exportButton, phaseFill, pressed && styles.exportButtonPressed]}
-            >
-              <Ionicons name="download-outline" size={18} color={palette.black} />
-              <Text style={styles.exportLabel}>Import</Text>
-            </Pressable>
-          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Import"
+            onPress={() => router.push('/import' as any)}
+            style={({ pressed }) => [
+              styles.exportButton,
+              // Match Delete section spacing (tighter than default export button).
+              { marginTop: spacing.md },
+              // Phase-based fill intentionally disabled for now:
+              // phaseFill,
+              avatarFill,
+              pressed && styles.exportButtonPressed,
+            ]}
+          >
+            <Ionicons name="download-outline" size={18} color={colors.text} />
+            <Text style={styles.exportLabel}>Import</Text>
+          </Pressable>
         </View>
 
         <Text style={styles.section}>Export your data</Text>
@@ -224,7 +229,13 @@ export default function PrivacyAuditScreen() {
               accessibilityRole="button"
               accessibilityLabel="All time"
               onPress={() => void applyAllTime()}
-              style={({ pressed }) => [styles.presetChip, phaseFill, pressed && { opacity: 0.9 }]}
+              style={({ pressed }) => [
+                styles.presetChip,
+                // Phase-based fill intentionally disabled for now:
+                // phaseFill,
+                avatarFill,
+                pressed && { opacity: 0.9 },
+              ]}
             >
               <Text style={styles.presetChipText}>All time</Text>
             </Pressable>
@@ -257,12 +268,14 @@ export default function PrivacyAuditScreen() {
             disabled={!!exportError}
             style={({ pressed }) => [
               styles.exportButton,
-              phaseFill,
+              // Phase-based fill intentionally disabled for now:
+              // phaseFill,
+              avatarFill,
               pressed && styles.exportButtonPressed,
               exportError && { opacity: 0.45 },
             ]}
           >
-            <Ionicons name="share-outline" size={18} color={palette.black} />
+            <Ionicons name="share-outline" size={18} color={colors.text} />
             <Text style={styles.exportLabel}>Export</Text>
           </Pressable>
           {lastExport ? (
@@ -296,7 +309,7 @@ export default function PrivacyAuditScreen() {
             onPress={() => setDeleteOpen(true)}
             style={({ pressed }) => [styles.dangerButton, pressed && { opacity: 0.92 }]}
           >
-            <Ionicons name="trash-outline" size={18} color={palette.white} />
+            <Ionicons name="trash-outline" size={18} color={colors.surface} />
             <Text style={styles.dangerButtonLabel}>Delete all data</Text>
           </Pressable>
         </View>

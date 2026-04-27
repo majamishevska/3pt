@@ -15,7 +15,7 @@ import { phaseAccentFill, phaseScreenBg } from '../utils/phaseChrome.styles';
 import { compareISO, toDateISO } from '../utils/dates';
 import type { CyclePhaseId } from '../utils/phaseConfig';
 import { useCyclePhaseId } from '../hooks/useCyclePhaseAccent';
-import { palette } from '../utils/palette';
+import { colors } from '../utils/theme';
 import { styles } from './EditEntryScreen.styles';
 
 export default function EditEntryScreen() {
@@ -188,7 +188,7 @@ export default function EditEntryScreen() {
             onPress={onSave}
             disabled={saving || rangeDirty}
           >
-            <Ionicons name="checkmark" size={18} color={palette.black} />
+            <Ionicons name="checkmark" size={18} color={colors.text} />
             <Text style={styles.saveLabel}>{saving ? 'Saving…' : 'Save changes'}</Text>
           </Pressable>
         </ScrollView>

@@ -1,6 +1,6 @@
 import { Pressable, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { palette } from '../utils/palette';
+import { colors } from '../utils/theme';
 import { styles } from './SymptomPicker.styles';
 
 export type SymptomOption = { id: string; label: string };
@@ -47,7 +47,7 @@ export function SymptomPicker({ selectedIds, onChange, accentFillStyle, label = 
                 pressed && { opacity: 0.9 },
               ]}
             >
-              <Ionicons name={s.icon} size={16} color={palette.black} />
+              <Ionicons name={s.icon} size={16} color={colors.text} />
               <Text style={styles.chipText}>{s.label}</Text>
             </Pressable>
           );

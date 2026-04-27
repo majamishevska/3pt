@@ -2,9 +2,6 @@ import { useCallback, useMemo, useState } from 'react';
 import {
   Alert,
   Image,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
   Pressable,
   ScrollView,
   Switch,
@@ -15,13 +12,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
+import { router } from 'expo-router';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { ProfileAvatar } from '../components/profile/ProfileAvatar';
 import { useAppSettings } from '../hooks/useAppSettings';
 import type { CyclePhaseId } from '../utils/phaseConfig';
 import { useCyclePhaseId } from '../hooks/useCyclePhaseAccent';
-import { phaseAccentFill, phaseScreenBg } from '../utils/phaseChrome.styles';
-import { palette } from '../utils/palette';
+import { phaseScreenBg } from '../utils/phaseChrome.styles';
+import { colors } from '../utils/theme';
 import { loadSettings, saveSettings, type AppSettings } from '../utils/settingsStorage';
 import { styles } from './SettingsScreen.styles';
 
@@ -39,7 +37,6 @@ function parseDayField(raw: string, min: number, max: number, fallback: number):
 
 export default function SettingsScreen() {
   const phaseId = useCyclePhaseId() as CyclePhaseId;
-  const phaseFill = phaseAccentFill[phaseId];
   const { settings, refresh } = useAppSettings();
 
   const [displayName, setDisplayName] = useState('');
@@ -153,7 +150,7 @@ export default function SettingsScreen() {
                 <ProfileAvatar
                   size={styles.avatarLarge.width as number}
                   customization={
-                    settings?.profileCustomization ?? { base: 'bunny', colorHex: '#bedd3c', mouthChar: 't', showNose: false }
+                    settings?.profileCustomization ?? { base: 'bunny', colorHex: colors.green, mouthChar: 'p', nose: 'none' }
                   }
                 />
               )}
@@ -168,6 +165,14 @@ export default function SettingsScreen() {
               style={({ pressed }) => [styles.pillButton, pressed && { opacity: 0.88 }]}
             >
               <Text style={styles.pillButtonLabel}>Choose photo</Text>
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Customize avatar"
+              onPress={() => router.push('/customization' as any)}
+              style={({ pressed }) => [styles.pillButton, pressed && { opacity: 0.88 }]}
+            >
+              <Text style={styles.pillButtonLabel}>Customize</Text>
             </Pressable>
           </View>
 
@@ -225,9 +230,9 @@ export default function SettingsScreen() {
             <Switch
               value={showPregnancy}
               onValueChange={(v) => void onTogglePregnancy(v)}
-              trackColor={{ false: palette.blue, true: palette.pink }}
-              thumbColor={palette.white}
-              ios_backgroundColor={palette.blue}
+              trackColor={{ false: colors.accentMuted, true: colors.accentWarm }}
+              thumbColor={colors.surface}
+              ios_backgroundColor={colors.accentMuted}
             />
           </View>
         </View>
@@ -242,9 +247,9 @@ export default function SettingsScreen() {
             <Switch
               value={notificationsEnabled}
               onValueChange={(v) => void onNotificationsToggle(v)}
-              trackColor={{ false: palette.blue, true: palette.pink }}
-              thumbColor={palette.white}
-              ios_backgroundColor={palette.blue}
+              trackColor={{ false: colors.accentMuted, true: colors.accentWarm }}
+              thumbColor={colors.surface}
+              ios_backgroundColor={colors.accentMuted}
             />
           </View>
           <View style={[styles.inputRow, styles.inputRowBorder, !notificationsEnabled && styles.rowDisabled]}>

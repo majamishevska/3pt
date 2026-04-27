@@ -1,28 +1,18 @@
 import { StyleSheet } from 'react-native';
-import { palette } from '../utils/palette';
-import { spacing } from '../utils/theme';
-
-const border = {
-  borderWidth: StyleSheet.hairlineWidth,
-  borderColor: 'rgba(17, 17, 17, 0.1)',
-} as const;
+import { colors, componentStyles, layout, radius, spacing, typography } from '../utils/theme';
 
 export const styles = StyleSheet.create({
   root: { flex: 1 },
   flex: { flex: 1 },
   scrollContent: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl * 2,
-    paddingTop: spacing.sm,
+    paddingHorizontal: layout.pagePaddingX,
+    paddingTop: layout.pagePaddingTop,
+    paddingBottom: layout.pagePaddingBottom,
   },
   sectionLabel: {
     marginTop: spacing.lg,
     marginBottom: spacing.xs,
-    fontSize: 11,
-    fontWeight: '800',
-    color: palette.black,
-    textTransform: 'uppercase',
-    letterSpacing: 0.7,
+    ...typography.labelCaps,
   },
   sectionOptional: {
     marginTop: spacing.lg,
@@ -33,17 +23,10 @@ export const styles = StyleSheet.create({
     gap: 6,
   },
   sectionOptionalTitle: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: palette.black,
-    textTransform: 'uppercase',
-    letterSpacing: 0.7,
+    ...typography.labelCaps,
   },
   sectionOptionalHint: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: palette.black,
-    opacity: 0.55,
+    ...typography.helper,
   },
   inputRow: {
     paddingVertical: spacing.xs,
@@ -56,17 +39,11 @@ export const styles = StyleSheet.create({
   },
   inputHelp: {
     marginTop: 4,
-    fontSize: 12,
-    lineHeight: 16,
-    color: palette.black,
-    opacity: 0.65,
+    ...typography.helper,
   },
   rowDisabled: { opacity: 0.45 },
   card: {
-    backgroundColor: palette.white,
-    borderRadius: 16,
-    padding: spacing.md,
-    ...border,
+    ...componentStyles.card,
   },
   profileRow: {
     flexDirection: 'row',
@@ -77,17 +54,18 @@ export const styles = StyleSheet.create({
   avatarLarge: {
     width: 64,
     height: 64,
-    borderRadius: 32,
-    backgroundColor: palette.white,
-    ...border,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
+    borderRadius: radius.lg,
+    overflow: 'visible',
   },
   avatarLargeImage: {
     width: 64,
     height: 64,
-    borderRadius: 32,
+    borderRadius: radius.lg,
   },
   bunnyLarge: {
     fontSize: 32,
@@ -95,10 +73,7 @@ export const styles = StyleSheet.create({
   },
   profileMeta: { flex: 1, gap: 4 },
   profileHint: {
-    fontSize: 13,
-    lineHeight: 18,
-    color: palette.black,
-    opacity: 0.78,
+    ...typography.helper,
   },
   rowButtons: {
     flexDirection: 'row',
@@ -109,44 +84,25 @@ export const styles = StyleSheet.create({
   pillButton: {
     flex: 1,
     minWidth: 0,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.sm,
-    borderRadius: 12,
-    backgroundColor: palette.white,
-    ...border,
+    ...componentStyles.pill,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
   pillButtonLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: palette.black,
+    ...typography.smallLabel,
   },
   label: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: palette.black,
-    textTransform: 'uppercase',
-    letterSpacing: 0.7,
+    ...typography.labelCaps,
     marginBottom: spacing.xs,
     marginTop: spacing.sm,
   },
   labelFirst: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: palette.black,
-    textTransform: 'uppercase',
-    letterSpacing: 0.7,
+    ...typography.labelCaps,
     marginBottom: spacing.xs,
   },
   input: {
-    backgroundColor: palette.white,
-    ...border,
-    borderRadius: 12,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: 16,
-    color: palette.black,
+    ...componentStyles.input,
   },
   switchRow: {
     flexDirection: 'row',
@@ -156,15 +112,11 @@ export const styles = StyleSheet.create({
   },
   switchLabelBlock: { flex: 1 },
   switchTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: palette.black,
+    ...typography.sectionTitle,
   },
   switchSubtitle: {
     marginTop: 4,
-    fontSize: 13,
-    lineHeight: 18,
-    color: palette.black,
+    ...typography.helper,
   },
 
   emojiModalRoot: {
@@ -177,32 +129,31 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(17, 17, 17, 0.35)',
   },
   emojiModalCard: {
-    backgroundColor: palette.white,
-    borderRadius: 16,
+    ...componentStyles.card,
     padding: spacing.lg,
-    ...border,
   },
   emojiModalTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: palette.black,
+    color: colors.text,
     letterSpacing: -0.3,
     marginBottom: spacing.sm,
   },
   emojiModalHint: {
+    ...typography.body,
     fontSize: 14,
     lineHeight: 20,
-    color: palette.black,
     marginBottom: spacing.md,
   },
   emojiModalInput: {
-    ...border,
-    borderRadius: 12,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+    borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
     fontSize: 28,
     textAlign: 'center',
-    color: palette.black,
+    color: colors.text,
     marginBottom: spacing.lg,
     minHeight: 52,
   },
@@ -213,21 +164,18 @@ export const styles = StyleSheet.create({
   emojiModalButton: {
     flex: 1,
     paddingVertical: spacing.sm,
-    borderRadius: 12,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
   emojiModalButtonSecondary: {
-    backgroundColor: palette.white,
-    ...border,
+    ...componentStyles.buttonSecondary,
   },
   emojiModalButtonPrimary: {
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(17, 17, 17, 0.12)',
+    borderColor: colors.divider,
   },
   emojiModalButtonLabel: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: palette.black,
+    ...typography.button,
   },
 });

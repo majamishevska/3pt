@@ -1,6 +1,5 @@
 import { Pressable, Switch, Text, View } from 'react-native';
-import { palette } from '../utils/palette';
-import { spacing } from '../utils/theme';
+import { colors, spacing, typography } from '../utils/theme';
 
 type Props = {
   label: string;
@@ -35,12 +34,19 @@ export function ChecklistRow({ label, count, value, onChange, disabled }: Props)
       ]}
     >
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 15, fontWeight: '700', color: palette.black }}>{label}</Text>
+        <Text style={{ ...typography.body, fontWeight: '700' }}>{label}</Text>
         {typeof count === 'number' ? (
-          <Text style={{ marginTop: 2, fontSize: 13, color: palette.black, opacity: 0.75 }}>{count} found</Text>
+          <Text style={{ marginTop: 2, ...typography.helper, fontSize: 13 }}>{count} found</Text>
         ) : null}
       </View>
-      <Switch value={value} onValueChange={onChange} disabled={disabled} />
+      <Switch
+        value={value}
+        onValueChange={onChange}
+        disabled={disabled}
+        trackColor={{ false: colors.border, true: colors.accentMuted }}
+        thumbColor={colors.surface}
+        ios_backgroundColor={colors.border}
+      />
     </Pressable>
   );
 }

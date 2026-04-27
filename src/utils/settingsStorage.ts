@@ -29,7 +29,7 @@ export type ProfileCustomization = {
   base: ProfileCustomizationBase;
   colorHex: string;
   mouthChar: string;
-  showNose: boolean;
+  nose: 'none' | 'circle' | 'triangle';
 };
 
 const CUSTOMIZATION_COLORS = ['#bedd3c', '#4ca4f0', '#e9b41f', '#fa97ca', '#ea5035'] as const;
@@ -42,9 +42,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
   profileEmoji: null,
   profileCustomization: {
     base: 'bunny',
-    colorHex: '#bedd3c',
-    mouthChar: 't',
-    showNose: false,
+    colorHex: CUSTOMIZATION_COLORS[0],
+    mouthChar: 'p',
+    nose: 'none',
   },
   averageCycleLengthDays: 28,
   averagePeriodLengthDays: 5,
@@ -66,19 +66,21 @@ function normalizeSettings(parsed: Partial<AppSettings> | null): AppSettings {
     const base = rawCustomization.base;
     const colorHex = rawCustomization.colorHex;
     const mouthChar = rawCustomization.mouthChar;
-    const showNose = rawCustomization.showNose;
+    const showNose = (rawCustomization as any).showNose;
+    const nose = (rawCustomization as any).nose;
 
     const baseOk = base === 'bear' || base === 'cat' || base === 'dog' || base === 'bunny';
     const colorOk = typeof colorHex === 'string' && (CUSTOMIZATION_COLORS as readonly string[]).includes(colorHex);
     const mouthOk = typeof mouthChar === 'string';
+    const noseOk = nose === 'none' || nose === 'circle' || nose === 'triangle';
     const showNoseOk = typeof showNose === 'boolean';
 
-    if (!baseOk || !colorOk || !mouthOk || !showNoseOk) return DEFAULT_SETTINGS.profileCustomization;
+    if (!baseOk || !colorOk || !mouthOk || !(noseOk || showNoseOk)) return DEFAULT_SETTINGS.profileCustomization;
     return {
       base,
       colorHex,
       mouthChar: mouthChar.slice(0, 1),
-      showNose,
+      nose: noseOk ? nose : showNose ? 'circle' : 'none',
     };
   })();
   return {

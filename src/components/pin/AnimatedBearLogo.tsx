@@ -65,7 +65,7 @@ export function AnimatedBearLogo({ state = 'default', size = 44, typingTick = 0 
     return () => {
       clearIdleTimeout();
     };
-  }, [eyeOffset, state]);
+  }, [blink, eyeOffset, state]);
 
   useEffect(() => {
     if (state !== 'typing') return;

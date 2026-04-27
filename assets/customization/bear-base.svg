@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_5" data-name="Layer 5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 161.35 107.61">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fa97ca;
+      }
+
+      .cls-2 {
+        fill: #202020;
+      }
+    </style>
+  </defs>
+  <g>
+    <g>
+      <rect class="cls-1" x="17.52" y="29.16" width="121.9" height="78.25" rx="36.99" ry="36.99"/>
+      <ellipse class="cls-1" cx="45.48" cy="33.53" rx="15.57" ry="18.9"/>
+    </g>
+    <ellipse class="cls-1" cx="110.88" cy="33.53" rx="15.57" ry="18.9"/>
+  </g>
+  <circle class="cls-2" cx="44.39" cy="79.93" r="6.44"/>
+  <circle class="cls-2" cx="112.55" cy="79.93" r="6.44"/>
+</svg>

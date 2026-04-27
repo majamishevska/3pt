@@ -3,10 +3,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import type { CyclePhaseId } from '../utils/phaseConfig';
-import { palette } from '../utils/palette';
-import { phaseAccentFill, phaseScreenBg } from '../utils/phaseChrome.styles';
-import { useCyclePhaseId } from '../hooks/useCyclePhaseAccent';
+import { phaseScreenBg } from '../utils/phaseChrome.styles';
+import { useAppSettings } from '../hooks/useAppSettings';
+import { colors } from '../utils/theme';
 import { styles } from './BottomBar.styles';
 
 type RouteName = 'index' | 'history' | 'privacy';
@@ -19,11 +18,12 @@ const ICONS: Record<RouteName, React.ComponentProps<typeof Ionicons>['name']> = 
 
 export function BottomBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const activeIndex = state.index;
-  const phaseId = useCyclePhaseId() as CyclePhaseId;
-  const phaseFill = phaseAccentFill[phaseId];
+  const { settings } = useAppSettings();
+  const avatarHex = settings?.profileCustomization?.colorHex ?? colors.green;
+  const avatarFill = { backgroundColor: avatarHex };
 
   return (
-    <SafeAreaView style={[styles.safe, phaseScreenBg[phaseId]]} edges={['bottom']}>
+    <SafeAreaView style={[styles.safe, phaseScreenBg.menstrual]} edges={['bottom']}>
       <View style={styles.wrap}>
         <View style={styles.row}>
           <View style={styles.pill}>
@@ -46,10 +46,15 @@ export function BottomBar({ state, descriptors, navigation }: BottomTabBarProps)
                     accessibilityState={isFocused ? { selected: true } : {}}
                     accessibilityLabel={descriptors[route.key]?.options?.tabBarAccessibilityLabel}
                     onPress={onPress}
-                    style={[styles.tabHit, isFocused && phaseFill]}
+                    style={[
+                      styles.tabHit,
+                      // Phase-based tab fill intentionally disabled for now:
+                      // isFocused && phaseFill,
+                      isFocused && avatarFill,
+                    ]}
                     hitSlop={10}
                   >
-                    <Ionicons name={icon} size={22} color={isFocused ? palette.black : palette.white} />
+                    <Ionicons name={icon} size={22} color={isFocused ? colors.text : colors.surface} />
                   </Pressable>
                 );
               })}
@@ -59,10 +64,16 @@ export function BottomBar({ state, descriptors, navigation }: BottomTabBarProps)
             accessibilityRole="button"
             accessibilityLabel="Log period"
             onPress={() => router.push('/log' as any)}
-            style={({ pressed }) => [styles.plusOuter, pressed && phaseFill, pressed && { opacity: 0.95 }]}
+            style={({ pressed }) => [
+              styles.plusOuter,
+              // Phase-based press fill intentionally disabled for now:
+              // pressed && phaseFill,
+              pressed && avatarFill,
+              pressed && { opacity: 0.95 },
+            ]}
             hitSlop={10}
           >
-            <Ionicons name="add" size={26} color={palette.white} />
+            <Ionicons name="add" size={26} color={colors.surface} />
           </Pressable>
         </View>
       </View>

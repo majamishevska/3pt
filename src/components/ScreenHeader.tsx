@@ -1,9 +1,10 @@
 import { Image, Pressable, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { palette } from '../utils/palette';
 import { useAppSettings } from '../hooks/useAppSettings';
 import { ProfileAvatar } from './profile/ProfileAvatar';
+import { customizationColors } from '../utils/profileCustomization';
+import { colors } from '../utils/theme';
 import { styles } from './ScreenHeader.styles';
 
 type Props = {
@@ -34,7 +35,7 @@ export function ScreenHeader({ title, showBack = false, showSettingsButton = tru
           style={styles.backHit}
           hitSlop={8}
         >
-          <Ionicons name="chevron-back" size={26} color={palette.black} />
+          <Ionicons name="chevron-back" size={26} color={colors.text} />
         </Pressable>
       ) : null}
       <Text style={styles.title} numberOfLines={1}>
@@ -51,7 +52,12 @@ export function ScreenHeader({ title, showBack = false, showSettingsButton = tru
           {settings?.profileImageUri ? (
             <Image source={{ uri: settings.profileImageUri }} style={styles.avatarImage} />
           ) : (
-            <ProfileAvatar size={38} customization={settings?.profileCustomization ?? { base: 'bunny', colorHex: '#bedd3c', mouthChar: 't', showNose: false }} />
+            <ProfileAvatar
+              size={38}
+              customization={
+                settings?.profileCustomization ?? { base: 'bunny', colorHex: customizationColors[0], mouthChar: 'p', nose: 'none' }
+              }
+            />
           )}
         </Pressable>
         {showSettingsButton ? (
@@ -62,7 +68,7 @@ export function ScreenHeader({ title, showBack = false, showSettingsButton = tru
             style={styles.settingsHit}
             hitSlop={6}
           >
-            <Ionicons name="settings-outline" size={22} color={palette.black} />
+            <Ionicons name="settings-outline" size={22} color={colors.text} />
           </Pressable>
         ) : null}
       </View>

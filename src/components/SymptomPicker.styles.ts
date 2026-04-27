@@ -1,20 +1,10 @@
 import { StyleSheet } from 'react-native';
-import { palette } from '../utils/palette';
-import { spacing } from '../utils/theme';
-
-const border = {
-  borderWidth: StyleSheet.hairlineWidth,
-  borderColor: 'rgba(17, 17, 17, 0.1)',
-} as const;
+import { colors, componentStyles, spacing, typography } from '../utils/theme';
 
 export const styles = StyleSheet.create({
   wrap: { marginTop: spacing.sm },
   label: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: palette.black,
-    textTransform: 'uppercase',
-    letterSpacing: 0.7,
+    ...typography.labelCaps,
     marginBottom: spacing.xs,
   },
   row: {
@@ -24,23 +14,19 @@ export const styles = StyleSheet.create({
   },
   chip: {
     flexDirection: 'row',
-    alignItems: 'center',
     gap: 6,
+    ...componentStyles.pill,
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.sm,
-    borderRadius: 999,
-    backgroundColor: palette.white,
-    ...border,
     borderWidth: 2,
     borderColor: 'transparent',
   },
   chipSelected: {
-    borderColor: 'rgba(17, 17, 17, 0.22)',
+    borderColor: colors.borderStrong,
   },
   chipText: {
+    ...typography.smallLabel,
     fontSize: 14,
-    fontWeight: '600',
-    color: palette.black,
   },
 });
 

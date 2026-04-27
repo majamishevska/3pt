@@ -1,40 +1,23 @@
 import { StyleSheet } from 'react-native';
-import { palette } from '../utils/palette';
-import { spacing } from '../utils/theme';
-
-const border = {
-  borderWidth: StyleSheet.hairlineWidth,
-  borderColor: 'rgba(17, 17, 17, 0.1)',
-} as const;
+import { colors, componentStyles, radius, spacing, typography } from '../utils/theme';
 
 export const styles = StyleSheet.create({
   wrap: {},
   title: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: palette.black,
-    textTransform: 'uppercase',
-    letterSpacing: 0.7,
+    ...typography.labelCaps,
     marginBottom: spacing.xs,
   },
   hint: {
-    fontSize: 13,
-    lineHeight: 18,
-    color: palette.black,
+    ...typography.helper,
     marginBottom: spacing.sm,
-    opacity: 0.92,
   },
   summary: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: palette.black,
+    ...typography.smallLabel,
     marginBottom: spacing.sm,
   },
   calendarWrap: {
-    borderRadius: 16,
+    ...componentStyles.card,
     padding: spacing.sm,
-    backgroundColor: palette.white,
-    ...border,
   },
   header: {
     flexDirection: 'row',
@@ -46,17 +29,15 @@ export const styles = StyleSheet.create({
   navHit: {
     width: 40,
     height: 40,
-    borderRadius: 12,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: palette.white,
-    ...border,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
   },
   headerTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: palette.black,
-    letterSpacing: -0.2,
+    ...typography.sectionTitle,
   },
   weekdays: {
     flexDirection: 'row',
@@ -65,9 +46,8 @@ export const styles = StyleSheet.create({
   weekday: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 11,
-    fontWeight: '700',
-    color: palette.black,
+    ...typography.labelCaps,
+    textTransform: 'none',
     letterSpacing: 0.3,
     paddingVertical: 4,
   },
@@ -92,11 +72,11 @@ export const styles = StyleSheet.create({
   dayLabel: {
     fontSize: 15,
     fontWeight: '600',
-    color: palette.black,
+    color: colors.text,
   },
   dayToday: {
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(17, 17, 17, 0.35)',
+    borderColor: colors.borderStrong,
   },
   dayMuted: {
     opacity: 0.28,
@@ -111,27 +91,17 @@ export const styles = StyleSheet.create({
   },
   footerButton: {
     flex: 1,
-    paddingVertical: spacing.sm,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: palette.white,
-    ...border,
+    ...componentStyles.buttonSecondary,
   },
   footerButtonPrimary: {
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(17, 17, 17, 0.12)',
+    borderColor: colors.divider,
   },
   footerLabel: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: palette.black,
+    ...typography.smallLabel,
   },
   dirtyNote: {
     marginTop: spacing.xs,
-    fontSize: 12,
-    lineHeight: 16,
-    color: palette.black,
-    opacity: 0.85,
+    ...typography.helper,
   },
 });

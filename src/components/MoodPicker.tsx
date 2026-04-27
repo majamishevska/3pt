@@ -1,6 +1,6 @@
 import { Pressable, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { palette } from '../utils/palette';
+import { colors } from '../utils/theme';
 import { styles } from './MoodPicker.styles';
 
 export type MoodOption = { id: string; label: string };
@@ -60,7 +60,7 @@ export function MoodPicker({ selectedIds, onChange, accentFillStyle, label = 'Mo
                 pressed && { opacity: 0.9 },
               ]}
             >
-              <Ionicons name={m.icon} size={16} color={palette.black} />
+              <Ionicons name={m.icon} size={16} color={colors.text} />
               <Text style={styles.chipText}>{m.label}</Text>
             </Pressable>
           );
