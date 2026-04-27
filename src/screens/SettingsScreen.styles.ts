@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
   },
   sectionLabel: {
     marginTop: spacing.lg,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.sm,
     ...typography.labelCaps,
   },
   sectionOptional: {
@@ -42,6 +42,33 @@ export const styles = StyleSheet.create({
     ...typography.helper,
   },
   rowDisabled: { opacity: 0.45 },
+  settingRow: {
+    paddingVertical: spacing.sm,
+  },
+  settingRowBorder: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(17, 17, 17, 0.08)',
+  },
+  settingLabel: {
+    ...typography.labelCaps,
+    marginBottom: 4,
+  },
+  settingHelp: {
+    ...typography.helper,
+    color: colors.textSecondary,
+  },
+  settingInput: {
+    marginTop: spacing.sm,
+    ...componentStyles.input,
+  },
+  settingRowMain: {
+    flex: 1,
+    paddingRight: spacing.md,
+  },
+  settingRowControl: {
+    alignSelf: 'center',
+    marginLeft: spacing.md,
+  },
   card: {
     ...componentStyles.card,
   },
@@ -49,7 +76,6 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    marginBottom: spacing.md,
   },
   avatarLarge: {
     width: 64,
@@ -71,27 +97,21 @@ export const styles = StyleSheet.create({
     fontSize: 32,
     lineHeight: 36,
   },
-  profileMeta: { flex: 1, gap: 4 },
-  profileHint: {
-    ...typography.helper,
-  },
-  rowButtons: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    gap: spacing.sm,
-    marginBottom: spacing.lg + spacing.xs,
-  },
-  pillButton: {
+  profileActionsCol: {
     flex: 1,
-    minWidth: 0,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    gap: spacing.sm,
+  },
+  profileActionBtn: {
+    minWidth: 132,
     ...componentStyles.pill,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  pillButtonLabel: {
-    ...typography.smallLabel,
-  },
+  profileActionLabel: { ...typography.smallLabel },
+  // Legacy styles kept for Profile + Name rows; Preferences uses `setting*` styles above.
   label: {
     ...typography.labelCaps,
     marginBottom: spacing.xs,

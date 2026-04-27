@@ -15,10 +15,11 @@ import { addEntriesBulk } from '../utils/storage';
 import { addImportSession } from '../utils/importStorage';
 import { useCyclePhaseId } from '../hooks/useCyclePhaseAccent';
 import type { CyclePhaseId } from '../utils/phaseConfig';
-import { phaseAccentFill, phaseScreenBg } from '../utils/phaseChrome.styles';
+import { phaseAccentFill } from '../utils/phaseChrome.styles';
 import type { CycleEntry } from '../utils/types';
 import { compareISO } from '../utils/dates';
 import { colors } from '../utils/theme';
+import { useAvatarBackgroundStyle } from '../hooks/useAvatarBackgroundStyle';
 import { styles } from './ImportInspectScreen.styles';
 
 function defaultSelectionFromInspection(inspection: ImportInspection | null): ImportSelection {
@@ -168,6 +169,7 @@ function parse3PT(raw: string): CycleEntry[] {
 
 export default function ImportInspectScreen() {
   const phaseId = useCyclePhaseId() as CyclePhaseId;
+  const bg = useAvatarBackgroundStyle();
   const phaseFill = phaseAccentFill[phaseId];
 
   const [source, setSource] = useState<ImportSourceChoice | null>(null);
@@ -326,7 +328,7 @@ export default function ImportInspectScreen() {
   }, [fileName, inspection, raw, selection, source]);
 
   return (
-    <SafeAreaView style={[styles.root, phaseScreenBg[phaseId]]} edges={['top']}>
+    <SafeAreaView style={[styles.root, bg]} edges={['top']}>
       <ScreenHeader title="Import" showBack />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.intro}>Choose where you’re importing from. Then pick a file and import.</Text>

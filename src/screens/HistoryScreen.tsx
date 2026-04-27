@@ -6,11 +6,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { deleteEntry, loadEntries } from '../utils/storage';
 import type { CycleEntry } from '../utils/types';
-import { phaseAccentHex, phaseScreenBg } from '../utils/phaseChrome.styles';
+import { phaseAccentHex } from '../utils/phaseChrome.styles';
 import { addDaysISO, compareISO, toDateISO } from '../utils/dates';
 import { formatPeriodLengthLabel, formatPeriodRangeLabel, periodLengthDaysInclusive } from '../utils/historyFormat';
 import type { CyclePhaseId } from '../utils/phaseConfig';
 import { useCyclePhaseId } from '../hooks/useCyclePhaseAccent';
+import { useAvatarBackgroundStyle } from '../hooks/useAvatarBackgroundStyle';
 import { styles } from './HistoryScreen.styles';
 import { router } from 'expo-router';
 import { buildMonthWeeks, formatMonthTitle, isoFromDay, shiftMonth, type MonthCursor } from '../utils/calendarMonth';
@@ -79,6 +80,7 @@ function entryForDateISO(entries: CycleEntry[], iso: string): CycleEntry | null 
 
 export default function HistoryScreen() {
   const phaseId = useCyclePhaseId() as CyclePhaseId;
+  const bg = useAvatarBackgroundStyle();
   const [entries, setEntries] = useState<CycleEntry[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
@@ -272,7 +274,7 @@ export default function HistoryScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.root, phaseScreenBg[phaseId]]} edges={['top']}>
+    <SafeAreaView style={[styles.root, bg]} edges={['top']}>
       <ScreenHeader title="History" />
       {viewMode === 'list' ? (
         topMode === 'logs' ? (

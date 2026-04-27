@@ -1,10 +1,55 @@
 import { Platform, StyleSheet } from 'react-native';
 import { colors, componentStyles, layout, radius, spacing, typography } from '../utils/theme';
 
-export const styles = StyleSheet.create({
+export const privacyStyles = StyleSheet.create({
   root: { flex: 1 },
   content: { paddingHorizontal: layout.pagePaddingX, paddingTop: layout.pagePaddingTop, paddingBottom: layout.pagePaddingBottom },
   body: { marginTop: 4, ...typography.body, lineHeight: 22 },
+  faqCard: {
+    ...componentStyles.card,
+    marginTop: spacing.md,
+  },
+  faqTitle: {
+    ...typography.labelCaps,
+    marginBottom: spacing.sm,
+  },
+  faqRow: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(17, 17, 17, 0.08)',
+    paddingVertical: spacing.sm,
+  },
+  faqRowNoDivider: {
+    borderBottomWidth: 0,
+  },
+  faqRowPress: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
+  faqQ: {
+    flex: 1,
+    ...typography.body,
+    fontWeight: '700',
+  },
+  faqA: {
+    ...typography.helper,
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.textSecondary,
+  },
+  faqAWrap: {
+    marginTop: spacing.xs,
+  },
+  faqLinkHit: {
+    alignSelf: 'flex-start',
+    marginTop: spacing.xs,
+    paddingVertical: 6,
+  },
+  faqLinkText: {
+    ...typography.smallLabel,
+    color: colors.accentMuted,
+  },
   section: {
     marginTop: spacing.lg,
     ...typography.labelCaps,
@@ -119,6 +164,9 @@ export const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   copyPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.sm,
     borderRadius: radius.md,

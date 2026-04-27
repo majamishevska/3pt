@@ -10,15 +10,17 @@ import { MoodPicker } from '../components/MoodPicker';
 import { SymptomPicker } from '../components/SymptomPicker';
 import { addEntry } from '../utils/storage';
 import type { CycleEntry } from '../utils/types';
-import { phaseAccentFill, phaseScreenBg } from '../utils/phaseChrome.styles';
+import { phaseAccentFill } from '../utils/phaseChrome.styles';
 import { compareISO, toDateISO } from '../utils/dates';
 import type { CyclePhaseId } from '../utils/phaseConfig';
 import { useCyclePhaseId } from '../hooks/useCyclePhaseAccent';
+import { useAvatarBackgroundStyle } from '../hooks/useAvatarBackgroundStyle';
 import { colors } from '../utils/theme';
 import { styles } from './LogEntryScreen.styles';
 
 export default function LogEntryScreen() {
   const phaseId = useCyclePhaseId() as CyclePhaseId;
+  const bg = useAvatarBackgroundStyle();
   const phaseFill = phaseAccentFill[phaseId];
   const todayISO = useMemo(() => toDateISO(new Date()), []);
   const [startDate, setStartDate] = useState(todayISO);
@@ -77,7 +79,7 @@ export default function LogEntryScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.root, phaseScreenBg[phaseId]]} edges={['top']}>
+    <SafeAreaView style={[styles.root, bg]} edges={['top']}>
       <ScreenHeader title="Log entry" showBack onBackPress={confirmLeaveIfDirty} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">

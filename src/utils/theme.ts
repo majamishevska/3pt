@@ -14,8 +14,8 @@ export const colors = {
   red: '#ea5035',
 
   /** Main surfaces */
-  // App background (slightly warm off-white)
-  bg: '#fcfcfa',
+  // App background: light neutral gray, then we tint it subtly per-avatar.
+  bg: '#f6f7f8',
   surface: palette.white,
   // Subtle warm surface for emphasized cards / primary buttons
   surfaceMuted: 'rgba(233, 180, 31, 0.18)',
@@ -51,6 +51,42 @@ export const colors = {
   phaseOvulation: '#e9b41f',
   phaseLuteal: '#4ca4f0',
 } as const;
+
+function clampByte(n: number): number {
+  return Math.max(0, Math.min(255, Math.round(n)));
+}
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const h = hex.replace('#', '').trim();
+  const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
+  if (full.length !== 6) return null;
+  const r = parseInt(full.slice(0, 2), 16);
+  const g = parseInt(full.slice(2, 4), 16);
+  const b = parseInt(full.slice(4, 6), 16);
+  if (![r, g, b].every((n) => Number.isFinite(n))) return null;
+  return { r, g, b };
+}
+
+function mixRgb(a: { r: number; g: number; b: number }, b: { r: number; g: number; b: number }, t: number) {
+  const k = Math.max(0, Math.min(1, t));
+  return {
+    r: clampByte(a.r + (b.r - a.r) * k),
+    g: clampByte(a.g + (b.g - a.g) * k),
+    b: clampByte(a.b + (b.b - a.b) * k),
+  };
+}
+
+/**
+ * Subtle background tint based on avatar color.
+ * Intentionally low mix so it stays clean (not muddy).
+ */
+export function tintedAppBackground(avatarHex?: string, mix = 0.07): string {
+  const base = hexToRgb(colors.bg) ?? { r: 246, g: 247, b: 248 };
+  const accent = avatarHex ? hexToRgb(avatarHex) : null;
+  if (!accent) return colors.bg;
+  const m = mixRgb(base, accent, mix);
+  return `rgb(${m.r}, ${m.g}, ${m.b})`;
+}
 
 export type ThemeColorKey = keyof typeof colors;
 

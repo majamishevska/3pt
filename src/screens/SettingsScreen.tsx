@@ -16,9 +16,7 @@ import { router } from 'expo-router';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { ProfileAvatar } from '../components/profile/ProfileAvatar';
 import { useAppSettings } from '../hooks/useAppSettings';
-import type { CyclePhaseId } from '../utils/phaseConfig';
-import { useCyclePhaseId } from '../hooks/useCyclePhaseAccent';
-import { phaseScreenBg } from '../utils/phaseChrome.styles';
+import { useAvatarBackgroundStyle } from '../hooks/useAvatarBackgroundStyle';
 import { colors } from '../utils/theme';
 import { loadSettings, saveSettings, type AppSettings } from '../utils/settingsStorage';
 import { styles } from './SettingsScreen.styles';
@@ -36,7 +34,7 @@ function parseDayField(raw: string, min: number, max: number, fallback: number):
 }
 
 export default function SettingsScreen() {
-  const phaseId = useCyclePhaseId() as CyclePhaseId;
+  const bg = useAvatarBackgroundStyle();
   const { settings, refresh } = useAppSettings();
 
   const [displayName, setDisplayName] = useState('');
@@ -129,7 +127,7 @@ export default function SettingsScreen() {
   }, [reminderDays, reminderDaysText]);
 
   return (
-    <SafeAreaView style={[styles.root, phaseScreenBg[phaseId]]} edges={['top']}>
+    <SafeAreaView style={[styles.root, bg]} edges={['top']}>
       <ScreenHeader title="Settings" showBack showSettingsButton={false} />
       <ScrollView
         keyboardShouldPersistTaps="handled"
@@ -155,25 +153,24 @@ export default function SettingsScreen() {
                 />
               )}
             </View>
-            <Text style={styles.profileHint}>Shown in the app header.</Text>
-          </View>
-          <View style={styles.rowButtons}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Choose profile photo"
-              onPress={() => void onChangeProfilePicture()}
-              style={({ pressed }) => [styles.pillButton, pressed && { opacity: 0.88 }]}
-            >
-              <Text style={styles.pillButtonLabel}>Choose photo</Text>
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Customize avatar"
-              onPress={() => router.push('/customization' as any)}
-              style={({ pressed }) => [styles.pillButton, pressed && { opacity: 0.88 }]}
-            >
-              <Text style={styles.pillButtonLabel}>Customize</Text>
-            </Pressable>
+            <View style={styles.profileActionsCol}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Choose profile photo"
+                onPress={() => void onChangeProfilePicture()}
+                style={({ pressed }) => [styles.profileActionBtn, pressed && { opacity: 0.88 }]}
+              >
+                <Text style={styles.profileActionLabel}>Choose photo</Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Customize avatar"
+                onPress={() => router.push('/customization' as any)}
+                style={({ pressed }) => [styles.profileActionBtn, pressed && { opacity: 0.88 }]}
+              >
+                <Text style={styles.profileActionLabel}>Customize</Text>
+              </Pressable>
+            </View>
           </View>
 
           <View style={[styles.inputRow, styles.inputRowBorder]}>
@@ -192,69 +189,73 @@ export default function SettingsScreen() {
 
         <Text style={styles.sectionLabel}>Preferences</Text>
         <View style={styles.card}>
-          <View style={styles.inputRow}>
-            <Text style={styles.labelFirst}>Average cycle length</Text>
-            <Text style={styles.inputHelp}>Typical days from the start of one period to the next (15–45).</Text>
+          <View style={styles.settingRow}>
+            <Text style={styles.settingLabel}>Average cycle length</Text>
+            <Text style={styles.settingHelp}>Typical days from the start of one period to the next (15–45).</Text>
             <TextInput
               value={averageCycleText}
               onChangeText={setAverageCycleText}
               onEndEditing={() => void persistAverageCycle()}
               placeholder="28"
               placeholderTextColor="rgba(17, 17, 17, 0.45)"
-              style={styles.input}
+              style={styles.settingInput}
               keyboardType="number-pad"
               inputMode="numeric"
               maxLength={2}
             />
           </View>
-          <View style={[styles.inputRow, styles.inputRowBorder]}>
-            <Text style={styles.label}>Average period length</Text>
-            <Text style={styles.inputHelp}>Typical bleeding days (1–14).</Text>
+          <View style={[styles.settingRow, styles.settingRowBorder]}>
+            <Text style={styles.settingLabel}>Average period length</Text>
+            <Text style={styles.settingHelp}>Typical bleeding days (1–14).</Text>
             <TextInput
               value={averagePeriodText}
               onChangeText={setAveragePeriodText}
               onEndEditing={() => void persistAveragePeriod()}
               placeholder="5"
               placeholderTextColor="rgba(17, 17, 17, 0.45)"
-              style={styles.input}
+              style={styles.settingInput}
               keyboardType="number-pad"
               inputMode="numeric"
               maxLength={2}
             />
           </View>
-          <View style={[styles.switchRow, styles.inputRowBorder]}>
-            <View style={styles.switchLabelBlock}>
-              <Text style={styles.switchTitle}>Pregnancy insights</Text>
-              <Text style={styles.switchSubtitle}>Show or hide pregnancy-related information in the app.</Text>
+          <View style={[styles.settingRow, styles.settingRowBorder]}>
+            <View style={styles.settingRowMain}>
+              <Text style={styles.settingLabel}>Pregnancy insights</Text>
+              <Text style={styles.settingHelp}>Show or hide pregnancy-related information in the app.</Text>
             </View>
-            <Switch
-              value={showPregnancy}
-              onValueChange={(v) => void onTogglePregnancy(v)}
-              trackColor={{ false: colors.accentMuted, true: colors.accentWarm }}
-              thumbColor={colors.surface}
-              ios_backgroundColor={colors.accentMuted}
-            />
+            <View style={styles.settingRowControl}>
+              <Switch
+                value={showPregnancy}
+                onValueChange={(v) => void onTogglePregnancy(v)}
+                trackColor={{ false: colors.accentMuted, true: colors.accentWarm }}
+                thumbColor={colors.surface}
+                ios_backgroundColor={colors.accentMuted}
+              />
+            </View>
           </View>
         </View>
 
         <Text style={styles.sectionLabel}>Notifications</Text>
         <View style={styles.card}>
-          <View style={styles.switchRow}>
-            <View style={styles.switchLabelBlock}>
-              <Text style={styles.switchTitle}>Enable notifications</Text>
-              <Text style={styles.switchSubtitle}>Reminders stay on this device until you enable system permission.</Text>
+          <View style={styles.settingRow}>
+            <View style={styles.settingRowMain}>
+              <Text style={styles.settingLabel}>Enable notifications</Text>
+              <Text style={styles.settingHelp}>Reminders stay on this device until you enable system permission.</Text>
             </View>
-            <Switch
-              value={notificationsEnabled}
-              onValueChange={(v) => void onNotificationsToggle(v)}
-              trackColor={{ false: colors.accentMuted, true: colors.accentWarm }}
-              thumbColor={colors.surface}
-              ios_backgroundColor={colors.accentMuted}
-            />
+            <View style={styles.settingRowControl}>
+              <Switch
+                value={notificationsEnabled}
+                onValueChange={(v) => void onNotificationsToggle(v)}
+                trackColor={{ false: colors.accentMuted, true: colors.accentWarm }}
+                thumbColor={colors.surface}
+                ios_backgroundColor={colors.accentMuted}
+              />
+            </View>
           </View>
-          <View style={[styles.inputRow, styles.inputRowBorder, !notificationsEnabled && styles.rowDisabled]}>
-            <Text style={styles.label}>Reminder</Text>
-            <Text style={styles.inputHelp}>
+          <View style={[styles.settingRow, styles.settingRowBorder, !notificationsEnabled && styles.rowDisabled]}>
+            <Text style={styles.settingLabel}>Reminder</Text>
+            <Text style={styles.settingHelp}>
               {reminderPreview} {reminderPreview === 1 ? 'day' : 'days'} before your period (0–14).
             </Text>
             <TextInput
@@ -263,7 +264,7 @@ export default function SettingsScreen() {
               onEndEditing={() => void persistReminderDays()}
               placeholder="1"
               placeholderTextColor="rgba(17, 17, 17, 0.45)"
-              style={styles.input}
+              style={styles.settingInput}
               keyboardType="number-pad"
               inputMode="numeric"
               maxLength={2}

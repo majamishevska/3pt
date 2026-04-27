@@ -3,9 +3,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { phaseScreenBg } from '../utils/phaseChrome.styles';
 import { useAppSettings } from '../hooks/useAppSettings';
-import { colors } from '../utils/theme';
+import { colors, tintedAppBackground } from '../utils/theme';
 import { styles } from './BottomBar.styles';
 
 type RouteName = 'index' | 'history' | 'privacy';
@@ -21,9 +20,10 @@ export function BottomBar({ state, descriptors, navigation }: BottomTabBarProps)
   const { settings } = useAppSettings();
   const avatarHex = settings?.profileCustomization?.colorHex ?? colors.green;
   const avatarFill = { backgroundColor: avatarHex };
+  const bg = { backgroundColor: tintedAppBackground(avatarHex) };
 
   return (
-    <SafeAreaView style={[styles.safe, phaseScreenBg.menstrual]} edges={['bottom']}>
+    <SafeAreaView style={[styles.safe, bg]} edges={['bottom']}>
       <View style={styles.wrap}>
         <View style={styles.row}>
           <View style={styles.pill}>

@@ -11,15 +11,17 @@ import { MoodPicker } from '../components/MoodPicker';
 import { SymptomPicker } from '../components/SymptomPicker';
 import { getEntryById, updateEntry } from '../utils/storage';
 import type { CycleEntry } from '../utils/types';
-import { phaseAccentFill, phaseScreenBg } from '../utils/phaseChrome.styles';
+import { phaseAccentFill } from '../utils/phaseChrome.styles';
 import { compareISO, toDateISO } from '../utils/dates';
 import type { CyclePhaseId } from '../utils/phaseConfig';
 import { useCyclePhaseId } from '../hooks/useCyclePhaseAccent';
+import { useAvatarBackgroundStyle } from '../hooks/useAvatarBackgroundStyle';
 import { colors } from '../utils/theme';
 import { styles } from './EditEntryScreen.styles';
 
 export default function EditEntryScreen() {
   const phaseId = useCyclePhaseId() as CyclePhaseId;
+  const bg = useAvatarBackgroundStyle();
   const phaseFill = phaseAccentFill[phaseId];
   const todayISO = useMemo(() => toDateISO(new Date()), []);
 
@@ -124,7 +126,7 @@ export default function EditEntryScreen() {
 
   if (!entry) {
     return (
-      <SafeAreaView style={[styles.root, phaseScreenBg[phaseId]]} edges={['top']}>
+      <SafeAreaView style={[styles.root, bg]} edges={['top']}>
         <ScreenHeader title="Edit entry" showBack />
         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
           <Text style={styles.subtitle}>We couldn’t find that entry.</Text>
@@ -134,7 +136,7 @@ export default function EditEntryScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.root, phaseScreenBg[phaseId]]} edges={['top']}>
+    <SafeAreaView style={[styles.root, bg]} edges={['top']}>
       <ScreenHeader title="Edit entry" showBack onBackPress={confirmLeaveIfDirty} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">

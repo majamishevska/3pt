@@ -16,7 +16,7 @@ import { compareISO, parseISODate, toDateISO } from '../utils/dates';
 import { useAppSettings } from '../hooks/useAppSettings';
 import { loadEntries } from '../utils/storage';
 import type { CycleEntry } from '../utils/types';
-import { phaseScreenBg } from '../utils/phaseChrome.styles';
+import { useAvatarBackgroundStyle } from '../hooks/useAvatarBackgroundStyle';
 
 import { styles } from './HomeScreen.styles';
 
@@ -39,6 +39,7 @@ function pickLatestEntry(entries: CycleEntry[]): CycleEntry | null {
 
 export default function HomeScreen() {
   const { settings } = useAppSettings();
+  const bg = useAvatarBackgroundStyle();
   const [todayISO, setTodayISO] = useState(() => toDateISO(new Date()));
   const [entries, setEntries] = useState<CycleEntry[]>([]);
 
@@ -63,7 +64,6 @@ export default function HomeScreen() {
   const cycleDay = cycleDayFromAnchor(anchorISO, todayISO, cycleLength);
   const ctx = resolvePhaseForCycleDay(cycleDay, phaseDefs);
   const nextPeriodISO = nextPeriodStartISO(anchorISO, cycleLength);
-  const phaseId = ctx.current.phaseId;
 
   const lastPeriodLine = useMemo(() => {
     if (latestEntry) {
@@ -76,7 +76,7 @@ export default function HomeScreen() {
   const greeting = greetingName ? `Hi ${greetingName}!` : 'Hi there!';
 
   return (
-    <SafeAreaView style={[styles.root, phaseScreenBg[phaseId]]} edges={['top']}>
+    <SafeAreaView style={[styles.root, bg]} edges={['top']}>
       <ScreenHeader title="Today" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.greeting}>{greeting}</Text>

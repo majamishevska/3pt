@@ -1,16 +1,16 @@
-import { useCallback, useMemo, useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { useCallback, useMemo, useState, useEffect } from 'react';
+import type React from 'react';
+import { Alert, LayoutAnimation, Modal, Platform, Pressable, ScrollView, Text, TextInput, UIManager, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
+import * as Linking from 'expo-linking';
 import * as Sharing from 'expo-sharing';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { ScreenHeader } from '../components/ScreenHeader';
-import type { CyclePhaseId } from '../utils/phaseConfig';
-import { useCyclePhaseId } from '../hooks/useCyclePhaseAccent';
-import { phaseScreenBg } from '../utils/phaseChrome.styles';
+import { useAvatarBackgroundStyle } from '../hooks/useAvatarBackgroundStyle';
 import { compareISO, toDateISO } from '../utils/dates';
 import { filterEntriesByDateRange, formatExport } from '../utils/exportEntries';
 import { loadEntries } from '../utils/storage';
@@ -19,10 +19,12 @@ import { friendlyDocumentsHint, writeExportToDocuments } from '../utils/writeExp
 import { documentDirectory } from 'expo-file-system/legacy';
 import { formatISOForInput, parseUserDateToISO, validateStartEnd } from '../utils/dateRangeInputs';
 import { deleteAllLocalData } from '../utils/deleteAllData';
-import { styles } from './PrivacyAuditScreen.styles';
+import { privacyStyles } from './PrivacyAuditScreen.styles';
 import { loadSettings } from '../utils/settingsStorage';
 import { generatePeriodCalendarPdf } from '../pdf/generatePdf';
 import { useAppSettings } from '../hooks/useAppSettings';
+
+const styles = privacyStyles as any;
 
 function pathForDisplay(uri: string): string {
   try {
@@ -33,11 +35,14 @@ function pathForDisplay(uri: string): string {
 }
 
 export default function PrivacyAuditScreen() {
-  const phaseId = useCyclePhaseId() as CyclePhaseId;
+  const bg = useAvatarBackgroundStyle();
   const appName = Constants.expoConfig?.name ?? 'this app';
   const { settings } = useAppSettings();
   const avatarHex = settings?.profileCustomization?.colorHex ?? colors.green;
   const avatarFill = { backgroundColor: avatarHex };
+  const [faqOpenId, setFaqOpenId] = useState<
+    'predictions' | 'storage' | 'visibility' | 'export' | 'otherTrackers' | null
+  >(null);
 
   const [startText, setStartText] = useState(() => toDateISO(new Date()));
   const [endText, setEndText] = useState(() => toDateISO(new Date()));
@@ -47,6 +52,7 @@ export default function PrivacyAuditScreen() {
     null,
   );
   const documentsHint = useMemo(() => friendlyDocumentsHint(appName), [appName]);
+  const exportsFolderUri = documentDirectory ? `${documentDirectory}exports` : null;
   const [allTimeMinMax, setAllTimeMinMax] = useState<{ min: string; max: string } | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -72,6 +78,12 @@ export default function PrivacyAuditScreen() {
       // No document directory exposed on this platform.
     }
     setExportError(null);
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      UIManager.setLayoutAnimationEnabledExperimental?.(true);
+    }
   }, []);
 
   useFocusEffect(
@@ -167,14 +179,110 @@ export default function PrivacyAuditScreen() {
     }
   };
 
+  const openExportsFolder = async () => {
+    if (!exportsFolderUri) {
+      Alert.alert('Folder', 'This device does not expose a documents folder.');
+      return;
+    }
+    try {
+      const ok = await Linking.openURL(exportsFolderUri);
+      if (!ok) {
+        await copyPath(exportsFolderUri, 'Folder path');
+      }
+    } catch {
+      await copyPath(exportsFolderUri, 'Folder path');
+    }
+  };
+
   return (
-    <SafeAreaView style={[styles.root, phaseScreenBg[phaseId]]} edges={['top']}>
+    <SafeAreaView style={[styles.root, bg]} edges={['top']}>
       <ScreenHeader title="Privacy" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.body}>
-          {appName} keeps your cycle data on your phone. There is no account and no cloud backup in this build—only what
-          you explicitly export leaves the app.
+          Your data stays with you. 3pt stores your entries on this device, and nothing is shared unless you choose
+          to export.
         </Text>
+
+        <View style={styles.faqCard}>
+          <Text style={styles.faqTitle}>Quick questions</Text>
+
+          <FaqRow
+            title="How are my predictions calculated?"
+            open={faqOpenId === 'predictions'}
+            onToggle={() => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setFaqOpenId((v) => (v === 'predictions' ? null : 'predictions'));
+            }}
+          >
+            Your future period dates are estimated from the patterns in the entries you log. As you add more data,
+            predictions can become more personalized over time.
+          </FaqRow>
+
+          <FaqRow
+            title="Where is my data stored?"
+            open={faqOpenId === 'storage'}
+            onToggle={() => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setFaqOpenId((v) => (v === 'storage' ? null : 'storage'));
+            }}
+          >
+            <View>
+              <Text style={styles.faqA}>
+                Your information stays on this device unless you choose to export it. You stay in control of when files
+                leave the app.
+              </Text>
+              <View style={styles.copyRow}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Open exports folder"
+                  onPress={() => void openExportsFolder()}
+                  style={({ pressed }) => [styles.copyPill, pressed && { opacity: 0.88 }]}
+                >
+                  <Ionicons name="folder-open-outline" size={16} color={colors.text} />
+                  <Text style={styles.copyPillLabel}>Open exports folder</Text>
+                </Pressable>
+              </View>
+            </View>
+          </FaqRow>
+
+          <FaqRow
+            title="Who can see my data?"
+            open={faqOpenId === 'visibility'}
+            onToggle={() => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setFaqOpenId((v) => (v === 'visibility' ? null : 'visibility'));
+            }}
+          >
+            No one else can see your information through this app. If you export or share a file, that choice is always up
+            to you.
+          </FaqRow>
+
+          <FaqRow
+            title="What happens when I export my data?"
+            open={faqOpenId === 'export'}
+            onToggle={() => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setFaqOpenId((v) => (v === 'export' ? null : 'export'));
+            }}
+          >
+            Export creates a file you can save, print, or share whenever you choose. It’s your data, in a format you
+            control.
+          </FaqRow>
+
+          <FaqRow
+            title="Do all period trackers work like this?"
+            open={faqOpenId === 'otherTrackers'}
+            onToggle={() => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setFaqOpenId((v) => (v === 'otherTrackers' ? null : 'otherTrackers'));
+            }}
+            hideDivider
+          >
+            Not always. Different apps handle data in different ways. Some store information on your device, some use cloud
+            servers, and some may share certain data with third-party services. It’s always a good idea to review each
+            app’s privacy settings and policies.
+          </FaqRow>
+        </View>
 
         <Text style={styles.section}>Import your data</Text>
         <View style={styles.card}>
@@ -291,6 +399,7 @@ export default function PrivacyAuditScreen() {
                   onPress={() => void copyPath(lastExport.fileUri, 'File path')}
                   style={({ pressed }) => [styles.copyPill, pressed && { opacity: 0.88 }]}
                 >
+                  <Ionicons name="copy-outline" size={16} color={colors.text} />
                   <Text style={styles.copyPillLabel}>Copy file path</Text>
                 </Pressable>
               </View>
@@ -372,5 +481,31 @@ export default function PrivacyAuditScreen() {
         </View>
       </Modal>
     </SafeAreaView>
+  );
+}
+
+function FaqRow(props: {
+  title: string;
+  open: boolean;
+  onToggle: () => void;
+  hideDivider?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <View style={[styles.faqRow, props.hideDivider && styles.faqRowNoDivider]}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ expanded: props.open }}
+        accessibilityLabel={props.title}
+        onPress={props.onToggle}
+        style={({ pressed }) => [styles.faqRowPress, pressed && { opacity: 0.9 }]}
+      >
+        <Text style={styles.faqQ}>{props.title}</Text>
+        <Ionicons name={props.open ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textTertiary} />
+      </Pressable>
+      {props.open ? (
+        <View style={styles.faqAWrap}>{typeof props.children === 'string' ? <Text style={styles.faqA}>{props.children}</Text> : props.children}</View>
+      ) : null}
+    </View>
   );
 }
