@@ -19,7 +19,7 @@ import {
 import { colors } from '../utils/theme';
 import { styles } from './CustomizationScreen.styles';
 
-const PREVIEW_SIZE = 200;
+const PREVIEW_SIZE = 176;
 
 function buildNext(prev: ProfileCustomization, patch: Partial<ProfileCustomization>): ProfileCustomization {
   return { ...prev, ...patch };
@@ -113,6 +113,28 @@ export default function CustomizationScreen() {
         </View>
 
         <View style={styles.card}>
+          <View style={styles.swatchRow}>
+            {customizationColors.map((c) => {
+              const selected = current.colorHex === c;
+              return (
+                <Pressable
+                  key={c}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Choose color ${c}`}
+                  onPress={() => onPickColor(c)}
+                  style={({ pressed }) => [
+                    styles.swatch,
+                    { backgroundColor: c },
+                    selected && styles.swatchSelected,
+                    pressed && { opacity: 0.9 },
+                  ]}
+                />
+              );
+            })}
+          </View>
+        </View>
+
+        <View style={styles.card}>
           <View style={styles.noseControls}>
             {([
               { id: 'circle', label: 'Circle nose', src: require('../../assets/customization/nose/circle-nose.png') },
@@ -166,28 +188,6 @@ export default function CustomizationScreen() {
                     <ProfileAvatar size={118} customization={{ ...current, base: b }} />
                   </View>
                 </Pressable>
-              );
-            })}
-          </View>
-        </View>
-
-        <View style={styles.card}>
-          <View style={styles.swatchRow}>
-            {customizationColors.map((c) => {
-              const selected = current.colorHex === c;
-              return (
-                <Pressable
-                  key={c}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Choose color ${c}`}
-                  onPress={() => onPickColor(c)}
-                  style={({ pressed }) => [
-                    styles.swatch,
-                    { backgroundColor: c },
-                    selected && styles.swatchSelected,
-                    pressed && { opacity: 0.9 },
-                  ]}
-                />
               );
             })}
           </View>

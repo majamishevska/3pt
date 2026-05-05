@@ -4,7 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { CycleRing } from '../components/CycleRing';
-import { DEFAULT_PHASE_DEFINITIONS } from '../utils/phaseConfig';
+import { DEFAULT_PHASE_DEFINITIONS, type CyclePhaseId } from '../utils/phaseConfig';
 import {
   cycleDayFromAnchor,
   latestPeriodStartBefore,
@@ -19,6 +19,23 @@ import type { CycleEntry } from '../utils/types';
 import { useAvatarBackgroundStyle } from '../hooks/useAvatarBackgroundStyle';
 
 import { styles } from './HomeScreen.styles';
+
+function phaseMeaningSentence(phaseId: CyclePhaseId, pregnancyInsightsOn: boolean): string {
+  switch (phaseId) {
+    case 'menstrual':
+      return 'Your uterine lining is shedding — rest and recovery may feel easier right now.';
+    case 'follicular':
+      return pregnancyInsightsOn
+        ? 'Estrogen is rising as a new egg matures, and energy often builds.'
+        : 'Estrogen is rising and energy often builds — a good time for momentum.';
+    case 'ovulation':
+      return pregnancyInsightsOn
+        ? 'This is your most fertile window — hormones peak as an egg is released.'
+        : 'Hormones peak and your body shifts into the second half of the cycle.';
+    case 'luteal':
+      return 'Progesterone is higher after ovulation, and PMS‑like symptoms can be more noticeable.';
+  }
+}
 
 function formatWeekdayMonthDay(d: Date): string {
   return d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
@@ -93,11 +110,13 @@ export default function HomeScreen() {
           <View style={styles.card}>
             <Text style={styles.cardTitleSpaced}>Current Phase</Text>
             <Text style={styles.cardValue}>{ctx.current.label}</Text>
-            <Text style={styles.cardSubtitle}>Day {ctx.cycleDay} of cycle</Text>
+            <Text style={styles.cardSubtitle}>
+              {phaseMeaningSentence(ctx.current.phaseId, settings?.showPregnancyInfo ?? false)}
+            </Text>
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.cardTitleSpaced}>Next Period</Text>
+            <Text style={styles.cardTitleSpaced}>Start of Next Period</Text>
             <Text style={styles.cardValue}>{formatMedium(nextPeriodISO)}</Text>
             <Text style={styles.cardSubtitle}>Estimated</Text>
           </View>

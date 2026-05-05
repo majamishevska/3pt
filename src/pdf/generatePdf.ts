@@ -27,7 +27,7 @@ export async function generatePeriodCalendarPdf(args: {
 }): Promise<{ fileUri: string; fileName: string; folderUri: string }> {
   const now = args.now ?? new Date();
   // Use the same proven asset path as the PIN logo layers.
-  const logoDataUri = await modulePngToDataUri(require('../../assets/images/3pt-logo-plain.png'));
+  const logoDataUri = await modulePngToDataUri(require('../../assets/images/3pt-logo.png'));
   const { html, fileName } = await buildPeriodCalendarHtml({
     spec: { kind: 'periodTrackingCalendar' },
     settings: args.settings,

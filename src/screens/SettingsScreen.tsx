@@ -116,6 +116,11 @@ export default function SettingsScreen() {
     await persist({ showPregnancyInfo: value });
   };
 
+  const onToggleIrregularCyclesMode = async (value: boolean) => {
+    await persist({ irregularCyclesMode: value });
+  };
+
+  const irregularCyclesMode = settings?.irregularCyclesMode ?? false;
   const showPregnancy = settings?.showPregnancyInfo ?? false;
   const uri = settings?.profileImageUri;
   const reminderDays = settings?.reminderDaysBeforePeriod ?? 1;
@@ -191,7 +196,7 @@ export default function SettingsScreen() {
         <View style={styles.card}>
           <View style={styles.settingRow}>
             <Text style={styles.settingLabel}>Average cycle length</Text>
-            <Text style={styles.settingHelp}>Typical days from the start of one period to the next (15–45).</Text>
+            <Text style={styles.settingHelp}>Typical days from the start of one period to the next.</Text>
             <TextInput
               value={averageCycleText}
               onChangeText={setAverageCycleText}
@@ -206,7 +211,7 @@ export default function SettingsScreen() {
           </View>
           <View style={[styles.settingRow, styles.settingRowBorder]}>
             <Text style={styles.settingLabel}>Average period length</Text>
-            <Text style={styles.settingHelp}>Typical bleeding days (1–14).</Text>
+            <Text style={styles.settingHelp}>Typical bleeding days.</Text>
             <TextInput
               value={averagePeriodText}
               onChangeText={setAveragePeriodText}
@@ -221,8 +226,25 @@ export default function SettingsScreen() {
           </View>
           <View style={[styles.settingRow, styles.settingRowBorder]}>
             <View style={styles.settingRowMain}>
+              <Text style={styles.settingLabel}>Irregular cycles mode</Text>
+              <Text style={styles.settingHelp}>
+                Use broader estimates and reduce cycle‑phase assumptions (helpful for irregular cycles, including PCOS).
+              </Text>
+            </View>
+            <View style={styles.settingRowControl}>
+              <Switch
+                value={irregularCyclesMode}
+                onValueChange={(v) => void onToggleIrregularCyclesMode(v)}
+                trackColor={{ false: colors.accentMuted, true: colors.accentWarm }}
+                thumbColor={colors.surface}
+                ios_backgroundColor={colors.accentMuted}
+              />
+            </View>
+          </View>
+          <View style={[styles.settingRow, styles.settingRowBorder]}>
+            <View style={styles.settingRowMain}>
               <Text style={styles.settingLabel}>Pregnancy insights</Text>
-              <Text style={styles.settingHelp}>Show or hide pregnancy-related information in the app.</Text>
+              <Text style={styles.settingHelp}>Show or hide pregnancy-related information.</Text>
             </View>
             <View style={styles.settingRowControl}>
               <Switch

@@ -4,6 +4,8 @@ const SETTINGS_KEY = '@period_tracker_settings_v2';
 const LEGACY_SETTINGS_KEY = '@period_tracker_settings_v1';
 
 export type AppSettings = {
+  /** Enable broader, less precise estimates for irregular cycles (including PCOS). */
+  irregularCyclesMode: boolean;
   showPregnancyInfo: boolean;
   displayName: string;
   /** Kept for backward compatibility; not shown in UI. */
@@ -35,6 +37,7 @@ export type ProfileCustomization = {
 const CUSTOMIZATION_COLORS = ['#bedd3c', '#4ca4f0', '#e9b41f', '#fa97ca', '#ea5035'] as const;
 
 export const DEFAULT_SETTINGS: AppSettings = {
+  irregularCyclesMode: false,
   showPregnancyInfo: false,
   displayName: '',
   pronouns: '',
@@ -84,6 +87,10 @@ function normalizeSettings(parsed: Partial<AppSettings> | null): AppSettings {
     };
   })();
   return {
+    irregularCyclesMode:
+      typeof (parsed as any).irregularCyclesMode === 'boolean'
+        ? ((parsed as any).irregularCyclesMode as boolean)
+        : DEFAULT_SETTINGS.irregularCyclesMode,
     showPregnancyInfo:
       typeof parsed.showPregnancyInfo === 'boolean' ? parsed.showPregnancyInfo : DEFAULT_SETTINGS.showPregnancyInfo,
     displayName: typeof parsed.displayName === 'string' ? parsed.displayName : DEFAULT_SETTINGS.displayName,
