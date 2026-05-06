@@ -11,8 +11,7 @@ In a post-*Dobbs* landscape where reproductive data is increasingly weaponized b
 
 ## Getting Started
 
-
-**Optional deployed Vercel link:** https://3pt-tracker.vercel.app
+**Optional deployed Vercel link:** https://3pt-tracker.vercel.app (use mobile layout, icons not available)
 **Note:** Local deployment is preferred; see the setup instructions above.
 
 ### 1. Installation
