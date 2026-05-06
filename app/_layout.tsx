@@ -14,6 +14,7 @@ export default function RootLayout() {
         <Stack.Screen name="edit/[id]" />
         <Stack.Screen name="import" />
         <Stack.Screen name="pin" />
+        <Stack.Screen name="pin-change" />
       </Stack>
       <StatusBar style="dark" />
     </SafeAreaProvider>

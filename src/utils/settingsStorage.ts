@@ -123,7 +123,7 @@ function normalizeSettings(parsed: Partial<AppSettings> | null): AppSettings {
     reminderDaysBeforePeriod: clampInt(
       Number(parsed.reminderDaysBeforePeriod),
       0,
-      14,
+      60,
       DEFAULT_SETTINGS.reminderDaysBeforePeriod,
     ),
   };

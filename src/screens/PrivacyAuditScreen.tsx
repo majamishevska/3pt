@@ -279,8 +279,7 @@ export default function PrivacyAuditScreen() {
             hideDivider
           >
             Not always. Different apps handle data in different ways. Some store information on your device, some use cloud
-            servers, and some may share certain data with third-party services. It’s always a good idea to review each
-            app’s privacy settings and policies.
+            servers, and some may share certain data with third-party services.
           </FaqRow>
         </View>
 
@@ -368,7 +367,6 @@ export default function PrivacyAuditScreen() {
             ))}
           </View>
 
-          {exportFormat === 'pdf' ? <Text style={styles.technical}>Created locally on this device.</Text> : null}
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Export data"
@@ -389,8 +387,7 @@ export default function PrivacyAuditScreen() {
           {lastExport ? (
             <>
               <Text style={styles.lastExportNote}>
-                Last export: <Text style={styles.bold}>{lastExport.fileName}</Text>. It is saved in the exports folder
-                above; the share sheet also lets you send a copy elsewhere (for example the Files app).
+                Last export: <Text style={styles.bold}>{lastExport.fileName}</Text>.
               </Text>
               <View style={styles.copyRow}>
                 <Pressable

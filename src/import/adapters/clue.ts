@@ -124,7 +124,7 @@ export function importClue(raw: string, fileName: string, selection: ImportSelec
       });
     }
   } else {
-    warnings.push('Period dates were not selected, so nothing was imported.');
+    warnings.push('No period dates were imported from this file.');
   }
 
   if (selection.unknown) warnings.push('Other data was selected, but this app ignores non-period data for now.');

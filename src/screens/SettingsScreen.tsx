@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { ProfileAvatar } from '../components/profile/ProfileAvatar';
 import { useAppSettings } from '../hooks/useAppSettings';
@@ -32,6 +33,8 @@ function parseDayField(raw: string, min: number, max: number, fallback: number):
   if (!Number.isFinite(n)) return fallback;
   return clamp(n, min, max);
 }
+
+const REMINDER_MAX_DAYS = 60;
 
 export default function SettingsScreen() {
   const bg = useAvatarBackgroundStyle();
@@ -89,7 +92,7 @@ export default function SettingsScreen() {
 
   const persistReminderDays = async () => {
     const base = await loadSettings();
-    const v = parseDayField(reminderDaysText, 0, 14, base.reminderDaysBeforePeriod);
+    const v = parseDayField(reminderDaysText, 0, REMINDER_MAX_DAYS, base.reminderDaysBeforePeriod);
     setReminderDaysText(String(v));
     await persist({ reminderDaysBeforePeriod: v });
   };
@@ -124,10 +127,10 @@ export default function SettingsScreen() {
   const showPregnancy = settings?.showPregnancyInfo ?? false;
   const uri = settings?.profileImageUri;
   const reminderDays = settings?.reminderDaysBeforePeriod ?? 1;
-  const reminderPreview = useMemo(() => {
+  void useMemo(() => {
     const t = reminderDaysText.trim();
     const n = t === '' ? reminderDays : Number(t);
-    const v = Number.isFinite(n) ? clamp(n, 0, 14) : reminderDays;
+    const v = Number.isFinite(n) ? clamp(n, 0, REMINDER_MAX_DAYS) : reminderDays;
     return v;
   }, [reminderDays, reminderDaysText]);
 
@@ -141,7 +144,6 @@ export default function SettingsScreen() {
       >
         <View style={styles.sectionOptional}>
           <Text style={styles.sectionOptionalTitle}>Profile</Text>
-          <Text style={styles.sectionOptionalHint}>(optional)</Text>
         </View>
         <View style={styles.card}>
           <Text style={styles.labelFirst}>Avatar</Text>
@@ -194,6 +196,22 @@ export default function SettingsScreen() {
 
         <Text style={styles.sectionLabel}>Preferences</Text>
         <View style={styles.card}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Change PIN"
+            onPress={() => router.push('/pin-change' as any)}
+            style={({ pressed }) => [styles.settingRow, pressed && { opacity: 0.92 }]}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <View style={styles.settingRowMain}>
+                <Text style={styles.settingLabel}>Change PIN</Text>
+                <Text style={styles.settingHelp}>Update the 4‑digit PIN used to unlock the app.</Text>
+              </View>
+              <View style={styles.settingRowControl}>
+                <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+              </View>
+            </View>
+          </Pressable>
           <View style={styles.settingRow}>
             <Text style={styles.settingLabel}>Average cycle length</Text>
             <Text style={styles.settingHelp}>Typical days from the start of one period to the next.</Text>
@@ -278,7 +296,7 @@ export default function SettingsScreen() {
           <View style={[styles.settingRow, styles.settingRowBorder, !notificationsEnabled && styles.rowDisabled]}>
             <Text style={styles.settingLabel}>Reminder</Text>
             <Text style={styles.settingHelp}>
-              {reminderPreview} {reminderPreview === 1 ? 'day' : 'days'} before your period (0–14).
+              Set how many days before your period you’d like to be reminded.
             </Text>
             <TextInput
               value={reminderDaysText}
@@ -289,7 +307,7 @@ export default function SettingsScreen() {
               style={styles.settingInput}
               keyboardType="number-pad"
               inputMode="numeric"
-              maxLength={2}
+              maxLength={3}
               editable={notificationsEnabled}
             />
           </View>

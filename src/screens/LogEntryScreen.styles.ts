@@ -5,7 +5,6 @@ export const styles = StyleSheet.create({
   root: { flex: 1 },
   flex: { flex: 1 },
   content: { paddingHorizontal: layout.pagePaddingX, paddingTop: layout.pagePaddingTop, paddingBottom: layout.pagePaddingBottom },
-  subtitle: { marginTop: 4, ...typography.body },
   section: {
     marginTop: spacing.lg,
     gap: layout.sectionGap,

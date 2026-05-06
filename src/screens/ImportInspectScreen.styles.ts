@@ -25,6 +25,11 @@ export const styles = StyleSheet.create({
   optionText: { flex: 1 },
   optionTitle: { ...typography.sectionTitle, fontWeight: '900' },
   optionBody: { marginTop: 4, ...typography.helper, fontSize: 13, lineHeight: 18 },
+  optionLogo: {
+    width: 28,
+    height: 28,
+    opacity: 0.95,
+  },
 
   fileCardWrap: { marginTop: spacing.sm },
 
@@ -58,6 +63,9 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
     backgroundColor: colors.text,
+  },
+  darkButtonDisabled: {
+    backgroundColor: 'rgba(17, 17, 17, 0.18)',
   },
   darkButtonLabel: { ...typography.button, color: colors.surface, fontWeight: '900' },
 

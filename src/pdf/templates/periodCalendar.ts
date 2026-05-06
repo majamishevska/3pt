@@ -346,11 +346,24 @@ export async function buildPeriodCalendarHtml(args: {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
+      :root {
+        --ink: #111;
+        --paper: #fff;
+        --muted-72: rgba(17,17,17,0.72);
+        --muted-65: rgba(17,17,17,0.65);
+        --muted-18: rgba(17,17,17,0.18);
+        --border-14: rgba(17,17,17,0.14);
+        --border-12: rgba(17,17,17,0.12);
+        --border-10: rgba(17,17,17,0.10);
+        --border-22: rgba(17,17,17,0.22);
+        --ghost-30: rgba(17,17,17,0.30);
+        --cell-bg: rgba(17,17,17,0.02);
+      }
       @page { margin: 18mm; }
       body {
         font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Arial, sans-serif;
-        color: #111;
-        background: #fff;
+        color: var(--ink);
+        background: var(--paper);
       }
       .headerRow {
         display: flex;
@@ -371,10 +384,10 @@ export async function buildPeriodCalendarHtml(args: {
       }
       .titleBlock { text-align: right; }
       .title { font-size: 18px; font-weight: 800; letter-spacing: -0.2px; }
-      .meta { margin-top: 3px; font-size: 11px; color: rgba(17,17,17,0.72); }
+      .meta { margin-top: 3px; font-size: 11px; color: var(--muted-72); }
 
-      .subtle { font-size: 11px; color: rgba(17,17,17,0.72); margin-bottom: 14px; }
-      .subtleSmall { font-size: 11px; color: rgba(17,17,17,0.72); margin: 2px 0 10px; }
+      .subtle { font-size: 11px; color: var(--muted-72); margin-bottom: 14px; }
+      .subtleSmall { font-size: 11px; color: var(--muted-72); margin: 2px 0 10px; }
 
       .topGrid {
         display: grid;
@@ -383,22 +396,22 @@ export async function buildPeriodCalendarHtml(args: {
         margin-bottom: 14px;
       }
       .card {
-        border: 1px solid rgba(17,17,17,0.14);
+        border: 1px solid var(--border-14);
         border-radius: 10px;
         padding: 10px 12px;
       }
       .cardTitle { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
       .kv { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 12px; }
-      .k { color: rgba(17,17,17,0.72); }
+      .k { color: var(--muted-72); }
       .v { font-weight: 700; }
       .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; font-size: 12px; }
       .legendItem { display: flex; align-items: center; gap: 8px; }
-      .legendDot { width: 8px; height: 8px; border-radius: 4px; background: rgba(17,17,17,0.22); display: inline-block; }
+      .legendDot { width: 8px; height: 8px; border-radius: 4px; background: var(--border-22); display: inline-block; }
       .legendNote { font-size: 12px; color: rgba(17,17,17,0.85); display:flex; align-items:center; gap:8px; }
-      .circleSample { width: 18px; height: 18px; border-radius: 9px; border: 2px solid #111; display:inline-block; }
+      .circleSample { width: 18px; height: 18px; border-radius: 9px; border: 2px solid var(--ink); display:inline-block; }
       .flowSample { display:inline-flex; align-items:center; }
 
-      .intro { border: 1px solid rgba(17,17,17,0.14); border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+      .intro { border: 1px solid var(--border-14); border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
       .introTitle { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
       .introBody { font-size: 12px; line-height: 18px; color: rgba(17,17,17,0.82); }
 
@@ -411,17 +424,17 @@ export async function buildPeriodCalendarHtml(args: {
         font-size: 10px;
         text-transform: uppercase;
         letter-spacing: 0.6px;
-        color: rgba(17,17,17,0.72);
+        color: var(--muted-72);
         padding: 6px 6px;
-        border-bottom: 1px solid rgba(17,17,17,0.12);
+        border-bottom: 1px solid var(--border-12);
       }
       table.grid td.day {
         vertical-align: top;
-        border: 1px solid rgba(17,17,17,0.10);
+        border: 1px solid var(--border-10);
         height: 20mm;
         padding: 6px 6px;
       }
-      td.empty { background: rgba(17,17,17,0.02); }
+      td.empty { background: var(--cell-bg); }
       .dayTop { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 4px; }
       .dayLeft { display: flex; flex-direction: column; gap: 3px; }
       .dayNum { font-size: 11px; font-weight: 800; }
@@ -435,31 +448,31 @@ export async function buildPeriodCalendarHtml(args: {
         justify-content: center;
         line-height: 1;
       }
-      .ghost { color: rgba(17,17,17,0.30); }
+      .ghost { color: var(--ghost-30); }
       .flowDots { display: inline-flex; gap: 3px; }
       .flowDotsSpacer { height: 7px; }
       .flowDot {
         width: 6px;
         height: 6px;
         border-radius: 3px;
-        border: 1px solid rgba(17,17,17,0.22);
+        border: 1px solid var(--border-22);
         display: inline-block;
       }
-      .flowDotFilled { background: #111; border-color: #111; }
+      .flowDotFilled { background: var(--ink); border-color: var(--ink); }
       .lines { display: grid; gap: 4px; }
-      .line { border-bottom: 1px dotted rgba(17,17,17,0.18); height: 6px; }
-      .gridHint { margin-top: 6px; font-size: 10px; color: rgba(17,17,17,0.65); }
+      .line { border-bottom: 1px dotted var(--muted-18); height: 6px; }
+      .gridHint { margin-top: 6px; font-size: 10px; color: var(--muted-65); }
 
       .notesCard { margin-top: 8px; }
-      .noteEmpty { font-size: 11px; color: rgba(17,17,17,0.65); margin-bottom: 8px; }
+      .noteEmpty { font-size: 11px; color: var(--muted-65); margin-bottom: 8px; }
       .noteList { display: grid; gap: 6px; margin-bottom: 10px; }
       .noteItem { font-size: 11px; line-height: 16px; }
       .noteLine { color: rgba(17,17,17,0.82); }
-      .noteMore { font-size: 11px; color: rgba(17,17,17,0.65); }
+      .noteMore { font-size: 11px; color: var(--muted-65); }
       .noteLines { display: grid; gap: 8px; }
-      .noteLine { border-bottom: 1px solid rgba(17,17,17,0.14); height: 10px; }
+      .noteLine { border-bottom: 1px solid var(--border-14); height: 10px; }
 
-      .footerNote { margin-top: 10px; font-size: 10px; color: rgba(17,17,17,0.65); }
+      .footerNote { margin-top: 10px; font-size: 10px; color: var(--muted-65); }
       .pageBreak { page-break-before: always; }
     </style>
   </head>

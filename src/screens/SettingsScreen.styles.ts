@@ -25,9 +25,6 @@ export const styles = StyleSheet.create({
   sectionOptionalTitle: {
     ...typography.labelCaps,
   },
-  sectionOptionalHint: {
-    ...typography.helper,
-  },
   inputRow: {
     paddingVertical: spacing.xs,
   },
@@ -137,65 +134,5 @@ export const styles = StyleSheet.create({
   switchSubtitle: {
     marginTop: 4,
     ...typography.helper,
-  },
-
-  emojiModalRoot: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-  },
-  emojiModalBackdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(17, 17, 17, 0.35)',
-  },
-  emojiModalCard: {
-    ...componentStyles.card,
-    padding: spacing.lg,
-  },
-  emojiModalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
-    letterSpacing: -0.3,
-    marginBottom: spacing.sm,
-  },
-  emojiModalHint: {
-    ...typography.body,
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: spacing.md,
-  },
-  emojiModalInput: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    fontSize: 28,
-    textAlign: 'center',
-    color: colors.text,
-    marginBottom: spacing.lg,
-    minHeight: 52,
-  },
-  emojiModalActions: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  emojiModalButton: {
-    flex: 1,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emojiModalButtonSecondary: {
-    ...componentStyles.buttonSecondary,
-  },
-  emojiModalButtonPrimary: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.divider,
-  },
-  emojiModalButtonLabel: {
-    ...typography.button,
   },
 });

@@ -11,7 +11,6 @@ export const styles = StyleSheet.create({
 
   viewRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },
   modeRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },
-  sortRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },
   toggle: {
     flex: 1,
     ...componentStyles.pill,

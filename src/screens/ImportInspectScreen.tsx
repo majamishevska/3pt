@@ -5,10 +5,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
+import { SvgXml } from 'react-native-svg';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { FilePickerCard } from '../components/FilePickerCard';
-import { ChecklistRow } from '../components/ChecklistRow';
-import { PreviewList } from '../components/PreviewList';
 import { inspectImportWithSource, importWithSource } from '../import';
 import type { DetectedSource, ImportCategoryId, ImportInspection, ImportSelection } from '../import/types';
 import { addEntriesBulk } from '../utils/storage';
@@ -20,6 +19,7 @@ import type { CycleEntry } from '../utils/types';
 import { compareISO } from '../utils/dates';
 import { colors } from '../utils/theme';
 import { useAvatarBackgroundStyle } from '../hooks/useAvatarBackgroundStyle';
+import { loadSvgXmlFromModule, tintSvgMonochrome } from '../utils/svgAsset';
 import { styles } from './ImportInspectScreen.styles';
 
 function defaultSelectionFromInspection(inspection: ImportInspection | null): ImportSelection {
@@ -32,6 +32,30 @@ function defaultSelectionFromInspection(inspection: ImportInspection | null): Im
 }
 
 type ImportSourceChoice = 'flo' | 'clue' | 'appleHealth' | 'threept';
+
+const IMPORT_OPTIONS: Record<ImportSourceChoice, number> = {
+  flo: require('../../assets/import-options/flo-logo.svg'),
+  clue: require('../../assets/import-options/clue-logo.svg'),
+  appleHealth: require('../../assets/import-options/apple-health-logo.svg'),
+  threept: require('../../assets/import-options/3pt-logo.svg'),
+};
+
+function useExportOptionLogosXml(): Partial<Record<ImportSourceChoice, string>> {
+  const [xmlById, setXmlById] = useState<Partial<Record<ImportSourceChoice, string>>>({});
+
+  useMemo(() => {
+    void (async () => {
+      const entries = (Object.keys(IMPORT_OPTIONS) as ImportSourceChoice[]).map(async (k) => {
+        const xml = await loadSvgXmlFromModule(IMPORT_OPTIONS[k]);
+        return [k, tintSvgMonochrome(xml, '#202020')] as const;
+      });
+      const resolved = await Promise.all(entries);
+      setXmlById(Object.fromEntries(resolved) as Partial<Record<ImportSourceChoice, string>>);
+    })();
+  }, []);
+
+  return xmlById;
+}
 
 function safeText(s: unknown): string {
   return typeof s === 'string' ? s : '';
@@ -170,25 +194,20 @@ function parse3PT(raw: string): CycleEntry[] {
 export default function ImportInspectScreen() {
   const phaseId = useCyclePhaseId() as CyclePhaseId;
   const bg = useAvatarBackgroundStyle();
-  const phaseFill = phaseAccentFill[phaseId];
+  void phaseAccentFill[phaseId];
 
   const [source, setSource] = useState<ImportSourceChoice | null>(null);
+  const logoXmlById = useExportOptionLogosXml();
   const [fileUri, setFileUri] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileSize, setFileSize] = useState<number | null>(null);
   const [raw, setRaw] = useState<string | null>(null);
 
   const [inspection, setInspection] = useState<ImportInspection | null>(null);
-  const [selection, setSelection] = useState<ImportSelection>(() => defaultSelectionFromInspection(null));
+  const [, setSelection] = useState<ImportSelection>(() => defaultSelectionFromInspection(null));
   const [threePTPreview, setThreePTPreview] = useState<{ count: number; span?: { startISO: string; endISO: string } } | null>(
     null,
   );
-  const [expanded, setExpanded] = useState<Record<ImportCategoryId, boolean>>({
-    periods: true,
-    symptoms: false,
-    notes: false,
-    unknown: false,
-  });
   const [importing, setImporting] = useState(false);
 
   const canImport = useMemo(() => {
@@ -198,8 +217,8 @@ export default function ImportInspectScreen() {
     }
     if (!inspection) return false;
     const hasPeriods = inspection.stats.periodsFound > 0;
-    return hasPeriods && selection.periods;
-  }, [inspection, raw, selection.periods, source, threePTPreview?.count]);
+    return hasPeriods && !!raw;
+  }, [inspection, raw, source, threePTPreview?.count]);
 
   const resetFileState = () => {
     setFileUri(null);
@@ -269,10 +288,6 @@ export default function ImportInspectScreen() {
     })();
   }, [source]);
 
-  const toggleCategory = (id: ImportCategoryId, next: boolean) => {
-    setSelection((s) => ({ ...s, [id]: next }));
-  };
-
   const doImport = useCallback(() => {
     if (!source || !raw || !fileName) return;
     void (async () => {
@@ -293,13 +308,16 @@ export default function ImportInspectScreen() {
           return;
         }
 
-        if (!inspection || !selection.periods) {
-          Alert.alert('Nothing to import', 'Turn on “Period dates” to import.');
+        if (!inspection || inspection.stats.periodsFound <= 0) {
+          Alert.alert('Nothing to import', 'No period dates were found in that file.');
           return;
         }
 
         const forced = source === 'appleHealth' ? 'appleHealth' : source;
-        const result = importWithSource(raw, fileName, forced as Exclude<DetectedSource, 'unknown'>, selection);
+        // For now we only import period dates (no per-category controls).
+        const forcedSelection: ImportSelection = { periods: true, symptoms: false, notes: false, unknown: false };
+        setSelection(forcedSelection);
+        const result = importWithSource(raw, fileName, forced as Exclude<DetectedSource, 'unknown'>, forcedSelection);
 
         const bulk = await addEntriesBulk(result.entries);
         const finalCounts = { parsed: result.counts.parsed, imported: bulk.imported, skippedDuplicates: bulk.skippedDuplicates };
@@ -309,7 +327,7 @@ export default function ImportInspectScreen() {
           source: result.source,
           importedAt: new Date().toISOString(),
           fileName: result.fileName,
-          categoriesImported: (Object.keys(selection) as ImportCategoryId[]).filter((k) => !!selection[k]),
+          categoriesImported: (Object.keys(forcedSelection) as ImportCategoryId[]).filter((k) => !!forcedSelection[k]),
           counts: finalCounts,
           warnings: result.warnings,
         });
@@ -325,15 +343,13 @@ export default function ImportInspectScreen() {
         setImporting(false);
       }
     })();
-  }, [fileName, inspection, raw, selection, source]);
+  }, [fileName, inspection, raw, source]);
 
   return (
     <SafeAreaView style={[styles.root, bg]} edges={['top']}>
       <ScreenHeader title="Import" showBack />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.intro}>Choose where you’re importing from. Then pick a file and import.</Text>
 
-        <Text style={styles.sectionLabel}>Source</Text>
         <View style={styles.optionList}>
           {([
             { id: 'flo', title: 'Flo', body: 'Import your Flo export file.' },
@@ -359,19 +375,16 @@ export default function ImportInspectScreen() {
                   <Text style={styles.optionTitle}>{opt.title}</Text>
                   <Text style={styles.optionBody}>{opt.body}</Text>
                 </View>
-                {opt.id === 'appleHealth' ? (
-                  <Ionicons name="logo-apple" size={20} color={colors.text} />
-                ) : opt.id === 'threept' ? (
-                  <Ionicons name="repeat-outline" size={20} color={colors.text} />
+                {logoXmlById[opt.id] ? (
+                  <SvgXml xml={logoXmlById[opt.id] as string} width={28} height={28} style={styles.optionLogo} />
                 ) : (
-                  <Ionicons name="cloud-upload-outline" size={20} color={colors.text} />
+                  <Ionicons name="ellipse-outline" size={20} color={colors.text} />
                 )}
               </Pressable>
             );
           })}
         </View>
 
-        <Text style={styles.sectionLabel}>File</Text>
         <View style={styles.fileCardWrap}>
           <FilePickerCard fileName={fileName} fileSizeBytes={fileSize} onPick={pickFile} />
         </View>
@@ -397,121 +410,36 @@ export default function ImportInspectScreen() {
 
         {source !== 'threept' && inspection ? (
           <>
-            <Text style={styles.sectionLabel}>What we found</Text>
+            <Text style={styles.sectionLabel}>Preview</Text>
             <View style={styles.infoCard}>
-              <View style={styles.infoTitleRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.infoTitle}>
-                    {inspection.source === 'appleHealth'
-                      ? 'Apple Health export'
-                      : inspection.source === 'clue'
-                        ? 'Clue export'
-                        : inspection.source === 'flo'
-                          ? 'Flo export'
-                          : 'Unknown export'}
-                  </Text>
-                  {inspection.stats.span ? (
-                    <Text style={styles.infoSub}>{inspection.stats.span.startISO} → {inspection.stats.span.endISO}</Text>
-                  ) : (
-                    <Text style={styles.infoSub}>No date span available.</Text>
-                  )}
-                </View>
-                <View style={styles.pillBadge}>
-                  <Text style={styles.pillBadgeText}>{inspection.stats.periodsFound} periods</Text>
-                </View>
-              </View>
-
-              {inspection.issues.length > 0 ? (
-                <View style={styles.issuesList}>
-                  {inspection.issues.map((it) => (
-                    <View key={it} style={styles.issueRow}>
-                      <Text style={styles.issueBullet}>•</Text>
-                      <Text style={styles.issueText}>{it}</Text>
-                    </View>
-                  ))}
-                </View>
+              <Text style={styles.infoTitle}>
+                {inspection.stats.periodsFound} {inspection.stats.periodsFound === 1 ? 'period' : 'periods'} found
+              </Text>
+              {inspection.stats.span ? (
+                <Text style={styles.infoSub}>{inspection.stats.span.startISO} → {inspection.stats.span.endISO}</Text>
+              ) : null}
+              {inspection.stats.periodsFound === 0 ? (
+                <Text style={styles.optionBody}>No period dates were detected in this file.</Text>
               ) : null}
             </View>
-
-            <Text style={styles.sectionLabel}>Choose what to import</Text>
-            <View style={styles.infoCard}>
-              {inspection.categories.map((cat, idx) => (
-                <View key={cat.id}>
-                  <ChecklistRow
-                    label={cat.label}
-                    count={cat.count}
-                    value={!!selection[cat.id]}
-                    onChange={(next) => toggleCategory(cat.id, next)}
-                    disabled={cat.count === 0}
-                  />
-
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={expanded[cat.id] ? `Hide preview for ${cat.label}` : `Show preview for ${cat.label}`}
-                    onPress={() => setExpanded((e) => ({ ...e, [cat.id]: !e[cat.id] }))}
-                    style={({ pressed }) => [{ paddingVertical: 6 }, pressed && { opacity: 0.85 }]}
-                  >
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                      <Ionicons name={expanded[cat.id] ? 'chevron-up' : 'chevron-down'} size={16} color={colors.text} />
-                      <Text style={styles.optionBody}>
-                        {expanded[cat.id] ? 'Hide preview' : 'Show preview'}
-                      </Text>
-                    </View>
-                  </Pressable>
-
-                  {expanded[cat.id] ? <PreviewList items={cat.preview} /> : null}
-                  {idx < inspection.categories.length - 1 ? <View style={styles.divider} /> : null}
-                </View>
-              ))}
-            </View>
-
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Import selected data"
-              onPress={doImport}
-              disabled={!canImport || importing}
-              style={({ pressed }) => [
-                styles.darkButton,
-                (!canImport || importing) && styles.primaryButtonDisabled,
-                pressed && canImport && !importing && { opacity: 0.9 },
-              ]}
-            >
-              <Ionicons name="download-outline" size={18} color={colors.surface} />
-              <Text style={styles.darkButtonLabel}>{importing ? 'Importing…' : 'Import'}</Text>
-            </Pressable>
-
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Open history"
-              onPress={() => router.push('/history' as any)}
-              style={({ pressed }) => [
-                styles.secondaryButton,
-                { backgroundColor: phaseFill.backgroundColor ?? 'rgba(17,17,17,0.06)' },
-                pressed && { opacity: 0.92 },
-              ]}
-            >
-              <Ionicons name="time-outline" size={18} color={colors.text} />
-              <Text style={styles.secondaryLabel}>History</Text>
-            </Pressable>
           </>
         ) : null}
 
-        {source === 'threept' ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Import from 3PT export"
-            onPress={doImport}
-            disabled={!canImport || importing}
-            style={({ pressed }) => [
-              styles.darkButton,
-              (!canImport || importing) && styles.primaryButtonDisabled,
-              pressed && canImport && !importing && { opacity: 0.9 },
-            ]}
-          >
-            <Ionicons name="download-outline" size={18} color={colors.surface} />
-            <Text style={styles.darkButtonLabel}>{importing ? 'Importing…' : 'Import'}</Text>
-          </Pressable>
-        ) : null}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Import"
+          onPress={doImport}
+          disabled={!canImport || importing}
+          style={({ pressed }) => [
+            styles.darkButton,
+            (!canImport || importing) && styles.darkButtonDisabled,
+            (!canImport || importing) && styles.primaryButtonDisabled,
+            pressed && canImport && !importing && { opacity: 0.9 },
+          ]}
+        >
+          <Ionicons name="download-outline" size={18} color={colors.surface} />
+          <Text style={styles.darkButtonLabel}>{importing ? 'Importing…' : 'Import'}</Text>
+        </Pressable>
 
         {fileUri && source !== 'threept' && !inspection ? (
           <Text style={styles.errorNote}>Selected file couldn’t be inspected yet. Try a different export.</Text>

@@ -83,7 +83,6 @@ export default function HistoryScreen() {
   const bg = useAvatarBackgroundStyle();
   const [entries, setEntries] = useState<CycleEntry[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [topMode, setTopMode] = useState<TopMode>('logs');
   const [viewMode, setViewMode] = useState<ViewMode>('month');
   const [monthCursor, setMonthCursor] = useState<MonthCursor>(() => monthCursorNow());
@@ -94,17 +93,14 @@ export default function HistoryScreen() {
 
   const refresh = useCallback(async () => {
     const list = await loadEntries();
-    list.sort((a, b) =>
-      sortOrder === 'newest'
-        ? compareISO(b.periodStartDate, a.periodStartDate)
-        : compareISO(a.periodStartDate, b.periodStartDate),
-    );
+    // Keep logs consistent (newest first).
+    list.sort((a, b) => compareISO(b.periodStartDate, a.periodStartDate));
     setEntries(list);
     if (!settings) {
       const s = await loadSettings();
       setSettings(s);
     }
-  }, [settings, sortOrder]);
+  }, [settings]);
 
   useFocusEffect(
     useCallback(() => {
@@ -192,25 +188,6 @@ export default function HistoryScreen() {
           </View>
 
           <Text style={styles.summary}>{entries.length} entries stored on this device</Text>
-          {topMode === 'logs' ? (
-            <View style={styles.sortRow}>
-              {(['newest', 'oldest'] as const).map((s) => {
-                const selected = sortOrder === s;
-                return (
-                  <Pressable
-                    key={s}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected }}
-                    accessibilityLabel={s === 'newest' ? 'Sort newest to oldest' : 'Sort oldest to newest'}
-                    onPress={() => setSortOrder(s)}
-                    style={({ pressed }) => [styles.toggle, selected && styles.toggleSelected, pressed && { opacity: 0.9 }]}
-                  >
-                    <Text style={styles.toggleText}>{s === 'newest' ? 'Newest → Oldest' : 'Oldest → Newest'}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          ) : null}
         </>
       ) : null}
 

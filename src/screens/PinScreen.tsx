@@ -1,11 +1,13 @@
-import { useMemo, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Redirect, router } from 'expo-router';
 import { colors, radius, spacing, typography } from '../utils/theme';
 import { PinScreenHeader } from '../components/pin/PinScreenHeader';
 import type { BearLogoState } from '../components/pin/AnimatedBearLogo';
 import { isPinUnlockedThisSession, markPinUnlockedThisSession } from '../utils/pinGate';
+import { getStoredPin } from '../utils/pinStorage';
+import { PinKeypad } from '../components/pin/PinKeypad';
 
 const PIN_LEN = 4;
 
@@ -13,8 +15,9 @@ export default function PinScreen() {
   const unlocked = isPinUnlockedThisSession();
 
   const [pin, setPin] = useState('');
-  const [status, setStatus] = useState<'idle' | 'typing' | 'success'>('idle');
+  const [status, setStatus] = useState<'idle' | 'typing' | 'success' | 'error'>('idle');
   const [typingTick, setTypingTick] = useState(0);
+  const [storedPin, setStoredPinState] = useState<string | null>(null);
 
   const bearState: BearLogoState = useMemo(() => {
     if (status === 'success') return 'success';
@@ -22,18 +25,32 @@ export default function PinScreen() {
     return 'default';
   }, [pin.length, status]);
 
+  useEffect(() => {
+    void (async () => {
+      setStoredPinState(await getStoredPin());
+    })();
+  }, []);
+
   if (unlocked) {
     return <Redirect href="/(tabs)" />;
   }
 
   const tryComplete = (nextPin: string) => {
     if (nextPin.length === PIN_LEN) {
-      // Placeholder success check: accept any 4 digits for now.
-      setStatus('success');
-      setTimeout(() => {
-        markPinUnlockedThisSession();
-        router.replace('/(tabs)' as any);
-      }, 450);
+      const expected = storedPin ?? '';
+      if (expected && nextPin === expected) {
+        setStatus('success');
+        setTimeout(() => {
+          markPinUnlockedThisSession();
+          router.replace('/(tabs)' as any);
+        }, 450);
+      } else {
+        setStatus('error');
+        setTimeout(() => {
+          setPin('');
+          setStatus('idle');
+        }, 650);
+      }
     }
   };
 
@@ -102,68 +119,18 @@ export default function PinScreen() {
           </View>
 
           <Text style={{ marginTop: spacing.md, ...typography.helper, fontSize: 13 }}>
-            {status === 'success' ? 'Unlocked' : 'Enter your PIN'}
+            {status === 'success' ? 'Unlocked' : status === 'error' ? 'Incorrect PIN' : 'Enter your PIN'}
           </Text>
         </View>
 
         <View style={{ height: spacing.lg }} />
 
-        {/* Keypad (always visible) */}
-        <View style={{ width: 280, gap: 12 }}>
-          {[
-            ['1', '2', '3'],
-            ['4', '5', '6'],
-            ['7', '8', '9'],
-            ['clear', '0', 'del'],
-          ].map((row, rIdx) => (
-            <View key={rIdx} style={{ flexDirection: 'row', gap: 12 }}>
-              {row.map((key) => {
-                const isAction = key === 'clear' || key === 'del';
-                const label = key === 'clear' ? 'Clear' : key === 'del' ? '⌫' : key;
-                return (
-                  <Pressable
-                    key={key}
-                    accessibilityRole="button"
-                    accessibilityLabel={
-                      key === 'del' ? 'Delete' : key === 'clear' ? 'Clear PIN' : `Digit ${key}`
-                    }
-                    onPress={() => {
-                      if (key === 'del') backspace();
-                      else if (key === 'clear') clearAll();
-                      else addDigit(key);
-                    }}
-                    style={({ pressed }) => [
-                      {
-                        flex: 1,
-                        height: 56,
-                        borderRadius: radius.lg,
-                        backgroundColor: colors.surface,
-                        borderWidth: 1,
-                        borderColor: colors.divider,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        opacity: status === 'success' ? 0.5 : 1,
-                      },
-                      pressed && status !== 'success' && { opacity: 0.9 },
-                      isAction && { backgroundColor: 'rgba(17, 17, 17, 0.04)' },
-                    ]}
-                    disabled={status === 'success'}
-                  >
-                    <Text
-                      style={{
-                        fontSize: isAction ? 16 : 20,
-                        fontWeight: isAction ? '800' : '900',
-                        color: colors.text,
-                      }}
-                    >
-                      {label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          ))}
-        </View>
+        <PinKeypad
+          disabled={status === 'success' || storedPin === null}
+          onDigit={addDigit}
+          onBackspace={backspace}
+          onClear={clearAll}
+        />
       </View>
     </SafeAreaView>
   );

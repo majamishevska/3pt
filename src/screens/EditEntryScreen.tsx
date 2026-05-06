@@ -11,18 +11,14 @@ import { MoodPicker } from '../components/MoodPicker';
 import { SymptomPicker } from '../components/SymptomPicker';
 import { getEntryById, updateEntry } from '../utils/storage';
 import type { CycleEntry } from '../utils/types';
-import { phaseAccentFill } from '../utils/phaseChrome.styles';
 import { compareISO, toDateISO } from '../utils/dates';
-import type { CyclePhaseId } from '../utils/phaseConfig';
-import { useCyclePhaseId } from '../hooks/useCyclePhaseAccent';
-import { useAvatarBackgroundStyle } from '../hooks/useAvatarBackgroundStyle';
+import { useAvatarBackgroundStyle, useProfileAccentColor } from '../hooks/useAvatarBackgroundStyle';
 import { colors } from '../utils/theme';
 import { styles } from './EditEntryScreen.styles';
 
 export default function EditEntryScreen() {
-  const phaseId = useCyclePhaseId() as CyclePhaseId;
   const bg = useAvatarBackgroundStyle();
-  const phaseFill = phaseAccentFill[phaseId];
+  const { hex: accentHex, accentFill } = useProfileAccentColor();
   const todayISO = useMemo(() => toDateISO(new Date()), []);
 
   const params = useLocalSearchParams<{ id?: string }>();
@@ -151,21 +147,21 @@ export default function EditEntryScreen() {
                   setStartDate(s);
                   setEndDate(e);
                 }}
-                selectionFillStyle={phaseFill}
-                rangeMiddleStyle={[phaseFill, { opacity: 0.38 }]}
+                selectionFillStyle={accentFill}
+                rangeMiddleStyle={[accentFill, { opacity: 0.38 }]}
                 maxISO={todayISO}
                 showHint={false}
                 onDirtyChange={setRangeDirty}
               />
             </View>
             <View style={styles.card}>
-              <FlowStrengthPicker value={flowStrength} onChange={setFlowStrength} />
+              <FlowStrengthPicker value={flowStrength} onChange={setFlowStrength} accentColor={accentHex} />
             </View>
             <View style={styles.card}>
-              <MoodPicker selectedIds={mood} onChange={setMood} accentFillStyle={phaseFill} />
+              <MoodPicker selectedIds={mood} onChange={setMood} accentFillStyle={accentFill} />
             </View>
             <View style={styles.card}>
-              <SymptomPicker selectedIds={symptoms} onChange={setSymptoms} accentFillStyle={phaseFill} />
+              <SymptomPicker selectedIds={symptoms} onChange={setSymptoms} accentFillStyle={accentFill} />
             </View>
             <View style={styles.card}>
               <Text style={styles.label}>Notes (optional)</Text>
@@ -183,7 +179,7 @@ export default function EditEntryScreen() {
           <Pressable
             style={({ pressed }) => [
               styles.save,
-              phaseFill,
+              accentFill,
               pressed && styles.savePressed,
               (saving || rangeDirty) && styles.saveDisabled,
             ]}

@@ -113,11 +113,12 @@ export function importAppleHealthXml(raw: string, fileName: string, selection: I
         savedAt: new Date().toISOString(),
       });
     }
+  } else {
+    warnings.push('No period dates were imported from this file.');
   }
 
-  if (selection.notes) warnings.push('Notes were selected, but Apple Health export adapter does not import notes yet.');
-  if (selection.symptoms)
-    warnings.push('Symptoms were selected, but Apple Health export adapter does not import symptoms yet.');
+  if (selection.notes) warnings.push('Notes in this export aren’t imported yet.');
+  if (selection.symptoms) warnings.push('Symptoms in this export aren’t imported yet.');
   if (selection.unknown) warnings.push('Other data was selected, but this app ignores non-period data for now.');
 
   return {

@@ -125,7 +125,7 @@ export function importFlo(raw: string, fileName: string, selection: ImportSelect
       });
     }
   } else {
-    warnings.push('Period dates were not selected, so nothing was imported.');
+    warnings.push('No period dates were imported from this file.');
   }
 
   if (selection.unknown) warnings.push('Other data was selected, but this app ignores non-period data for now.');
