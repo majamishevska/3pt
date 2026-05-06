@@ -1,7 +1,7 @@
 # 3PT - Privacy-Preserving Period Tracker
 
 <p align="center">
-  <img src="3pt-tracker/assets/images/3pt-logo.png" alt="3PT logo" width="300" />
+  <img src="/assets/images/3pt-logo.png" alt="3PT logo" width="300" />
 </p>
 
 *3PTt* is a privacy-first, zero-knowledge period tracking application developed as a final project for CSCI 1952B. 
@@ -15,7 +15,6 @@ In a post-*Dobbs* landscape where reproductive data is increasingly weaponized b
 Clone the repository and install the dependencies:
 
 ```bash
-cd 3pt-tracker
 npm install
 ```
  
@@ -24,31 +23,30 @@ npm install
 Start the Expo development server:
 
 ```bash
-cd 3pt-tracker
-npx expo start / npx expo start -c
+npx expo start (or npx expo start -c)
 press i to open iOS simulator
 ```
  ⁠
 You can then run the app on an iOS Simulator, Android Emulator, or a physical device via the Expo Go app.
 
-## Key Features
-•⁠  ⁠*Zero Cloud Storage:* 100% of cycle data and notes are saved locally on-device. There is no central server to be breached or subpoenaed.
-•⁠  ⁠*Account-Free Access:* No email, password, or identity linking is required to start tracking, ensuring zero friction and absolute anonymity.
-•⁠  ⁠*Data Sovereignty (Export/Import):* Built-in tools allow you to instantly export your cycle history as universally readable JSON or CSV files to avoid vendor lock-in.
-•⁠  ⁠*The Right to be Forgotten:* A permanently visible "Delete All Data" button instantly drops your local database, guaranteeing permanent erasure without arbitrary 30-day corporate wait periods.
-•⁠  ⁠*Fully Offline:* The app functions entirely without an internet connection, physically severing the data-sharing pipeline.
-
-## Tech Stack
-•⁠  ⁠React Native
-•⁠  ⁠Expo
-•⁠  ⁠TypeScript
-•⁠  ⁠AsyncStorage (for local, on-device persistence)
-
-## App Access (Important)
+### 3. Accessing App
 
 To ensure privacy against physical device snooping, the app launches with a lock screen.
+**The PIN to unlock and access the app is *1952*.**
 
-The PIN to unlock and access the app is *1952* :)
+## Key Features
+- ⁠*Zero Cloud Storage:* 100% of cycle data and notes are saved locally on-device. There is no central server to be breached or subpoenaed.
+
+- ⁠*Account-Free Access:* No email, password, or identity linking is required to start tracking, ensuring zero friction and absolute anonymity.
+
+- ⁠*Data Sovereignty (Export/Import):* Built-in tools allow you to instantly export your cycle history as universally readable JSON or CSV files to avoid vendor lock-in.
+
+- ⁠*The Right to be Forgotten:* A permanently visible "Delete All Data" button instantly drops your local database, guaranteeing permanent erasure without arbitrary 30-day corporate wait periods.
+
+- ⁠*Fully Offline:* The app functions entirely without an internet connection, physically severing the data-sharing pipeline.
+
+## Tech Stack
+⁠React Native •⁠  ⁠Expo •⁠  ⁠TypeScript •⁠  ⁠AsyncStorage (for local, on-device persistence)
 
 ## Authors
 
