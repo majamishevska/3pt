@@ -4,9 +4,9 @@
   <img src="/assets/images/3pt-logo.png" alt="3PT logo" width="300" />
 </p>
 
-*3PTt* is a privacy-first, zero-knowledge period tracking application developed as a final project for CSCI 1952B. 
+*3PT* is a privacy-first, zero-knowledge period tracking application developed as a final project for CSCI 1952B. 
 
-In a post-*Dobbs* landscape where reproductive data is increasingly weaponized by data brokers and surveillance capitalism, 3pt shifts the power dynamic back to the user. It utilizes a strict local-only architecture to ensure absolute data sovereignty, informational self-determination, and a frictionless right to be forgotten.
+In a post-*Dobbs* landscape where reproductive data is increasingly weaponized by data brokers and surveillance capitalism, *3PT* shifts the power dynamic back to the user. It utilizes a strict local-only architecture to ensure absolute data sovereignty, informational self-determination, and a frictionless right to be forgotten.
 
 
 ## Getting Started
@@ -17,7 +17,7 @@ Clone the repository and install the dependencies:
 ```bash
 npm install
 ```
- 
+
 ### 2. Running the App
 
 Start the Expo development server:

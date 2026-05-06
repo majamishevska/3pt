@@ -9,11 +9,12 @@ type Props = {
   accentColor?: string;
 };
 
-export function FlowStrengthPicker({ value, onChange, label = 'Flow strength (optional)', accentColor }: Props) {
+export function FlowStrengthPicker({ value, onChange, label = 'Flow strength', accentColor }: Props) {
   const fillColor = accentColor ?? colors.text;
   const v = Math.min(5, Math.max(1, Math.round(value || 3)));
+  const dot = 22;
   return (
-    <View style={{ marginTop: spacing.sm }}>
+    <View>
       <Text
         style={{
           ...typography.labelCaps,
@@ -37,9 +38,9 @@ export function FlowStrengthPicker({ value, onChange, label = 'Flow strength (op
                 onPress={() => onChange(n)}
                 style={({ pressed }) => [
                   {
-                    width: 16,
-                    height: 16,
-                    borderRadius: 8,
+                    width: dot,
+                    height: dot,
+                    borderRadius: dot / 2,
                     borderWidth: 2,
                     borderColor: 'rgba(17, 17, 17, 0.22)',
                     backgroundColor: filled ? fillColor : 'transparent',

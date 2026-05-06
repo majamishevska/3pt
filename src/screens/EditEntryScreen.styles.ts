@@ -16,7 +16,6 @@ export const styles = StyleSheet.create({
   label: {
     ...typography.labelCaps,
     marginBottom: spacing.xs,
-    marginTop: spacing.sm,
   },
   input: {
     ...componentStyles.input,

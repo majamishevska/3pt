@@ -18,6 +18,7 @@ import { buildMonthWeeks, formatMonthTitle, isoFromDay, shiftMonth, type MonthCu
 import { loadSettings, type AppSettings } from '../utils/settingsStorage';
 import { predictedDateSet, predictPeriodsWithinRange } from '../utils/predictions';
 import { colors, componentStyles, radius, spacing, typography } from '../utils/theme';
+import { getMoodLabel, getSymptomLabel } from '../utils/moodSymptomCatalog';
 
 type TopMode = 'logs' | 'predictions';
 type ViewMode = 'month' | 'year' | 'list';
@@ -459,7 +460,18 @@ export default function HistoryScreen() {
               const title = new Date(yearCursor, mIdx, 1).toLocaleDateString(undefined, { month: 'short' });
               const weeks = buildMonthWeeks(yearCursor, mIdx);
               return (
-                <View key={mIdx} style={styles.miniMonth}>
+                <Pressable
+                  key={mIdx}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Open ${title} ${yearCursor}`}
+                  onPress={() => {
+                    setSelectedISO(null);
+                    setSelectedEntry(null);
+                    setMonthCursor({ year: yearCursor, monthIndex: mIdx });
+                    setViewMode('month');
+                  }}
+                  style={({ pressed }) => [styles.miniMonth, pressed && { opacity: 0.92 }]}
+                >
                   <Text style={styles.miniTitle}>{title}</Text>
                   <View style={styles.miniWeekdays}>
                     {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, idx) => (
@@ -492,7 +504,7 @@ export default function HistoryScreen() {
                       </View>
                     ))}
                   </View>
-                </View>
+                </Pressable>
               );
             })}
           </View>
@@ -545,7 +557,12 @@ export default function HistoryScreen() {
 
             {selectedEntry.symptoms?.length ? (
               <Text style={{ marginTop: spacing.sm, ...typography.helper, color: colors.textSecondary }}>
-                Symptoms: {selectedEntry.symptoms.join(', ')}
+                Symptoms: {selectedEntry.symptoms.map(getSymptomLabel).join(', ')}
+              </Text>
+            ) : null}
+            {selectedEntry.mood?.length ? (
+              <Text style={{ marginTop: spacing.sm, ...typography.helper, color: colors.textSecondary }}>
+                Mood: {selectedEntry.mood.map(getMoodLabel).join(', ')}
               </Text>
             ) : null}
             {selectedEntry.notes ? (

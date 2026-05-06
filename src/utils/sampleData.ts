@@ -34,7 +34,7 @@ export function generateSampleCycleEntries(opts?: { year?: number; seed?: number
   let cursor = new Date(year, 0, 4 + Math.floor(rng() * 6));
   const endOfYear = new Date(year, 11, 31);
 
-  const symptomPool = ['cramps', 'bloating', 'headache', 'fatigue', 'acne'] as const;
+  const symptomPool = ['cramps', 'bloating', 'headache', 'fatigue', 'acne', 'nausea'] as const;
   const moodPool = ['calm', 'happy', 'low', 'anxious', 'irritable', 'energetic'] as const;
   const notesPool = [
     'Took it easy today.',

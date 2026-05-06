@@ -17,6 +17,7 @@ import { useAppSettings } from '../hooks/useAppSettings';
 import { loadEntries } from '../utils/storage';
 import type { CycleEntry } from '../utils/types';
 import { useAvatarBackgroundStyle } from '../hooks/useAvatarBackgroundStyle';
+import { getMoodLabel, getSymptomLabel } from '../utils/moodSymptomCatalog';
 
 import { styles } from './HomeScreen.styles';
 
@@ -89,6 +90,54 @@ export default function HomeScreen() {
     return '—';
   }, [latestEntry]);
 
+  const recentSummary = useMemo(() => {
+    if (!entries.length) return null;
+
+    // Look at the last 6 logged periods (newest first).
+    const sorted = [...entries].sort((a, b) => compareISO(b.periodStartDate, a.periodStartDate));
+    const window = sorted.slice(0, 6);
+    const span = window.length;
+
+    const symptomCounts = new Map<string, number>();
+    const moodCounts = new Map<string, number>();
+    let flowSum = 0;
+
+    for (const e of window) {
+      flowSum += Math.min(5, Math.max(1, Math.round(e.flowStrength ?? 3)));
+      for (const id of e.symptoms ?? []) {
+        symptomCounts.set(id, (symptomCounts.get(id) ?? 0) + 1);
+      }
+      for (const id of e.mood ?? []) {
+        moodCounts.set(id, (moodCounts.get(id) ?? 0) + 1);
+      }
+    }
+
+    const top3 = (m: Map<string, number>) =>
+      [...m.entries()]
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .slice(0, 3);
+
+    const topSymptoms = top3(symptomCounts);
+    const topMoods = top3(moodCounts);
+    const avgFlowRounded = Math.round((flowSum / span) * 10) / 10;
+
+    const lines: string[] = [];
+    if (topSymptoms.length) {
+      lines.push(
+        `Top symptoms: ${topSymptoms.map(([id, c]) => `${getSymptomLabel(id)} (${c})`).join(', ')}.`,
+      );
+    }
+    if (topMoods.length) {
+      lines.push(`Top moods: ${topMoods.map(([id, c]) => `${getMoodLabel(id)} (${c})`).join(', ')}.`);
+    }
+    if (Number.isFinite(avgFlowRounded)) {
+      lines.push(`Avg flow: ${avgFlowRounded}/5.`);
+    }
+
+    if (!lines.length) return null;
+    return { span, text: lines.join('\n') };
+  }, [entries]);
+
   const greetingName = settings?.displayName?.trim();
   const greeting = greetingName ? `Hi ${greetingName}!` : 'Hi there!';
 
@@ -118,13 +167,20 @@ export default function HomeScreen() {
           <View style={styles.card}>
             <Text style={styles.cardTitleSpaced}>Start of Next Period</Text>
             <Text style={styles.cardValue}>{formatMedium(nextPeriodISO)}</Text>
-            <Text style={styles.cardSubtitle}>Estimated</Text>
+            <Text style={styles.cardSubtitle}>Estimated from last log + cycle length.</Text>
           </View>
 
           <View style={styles.card}>
             <Text style={styles.cardTitleSpaced}>Last Period</Text>
             <Text style={styles.cardValue}>{lastPeriodLine}</Text>
           </View>
+
+          {recentSummary ? (
+            <View style={styles.card}>
+              <Text style={styles.cardTitleSpaced}>Last {recentSummary.span} periods</Text>
+              <Text style={styles.cardSubtitle}>{recentSummary.text}</Text>
+            </View>
+          ) : null}
         </View>
       </ScrollView>
     </SafeAreaView>

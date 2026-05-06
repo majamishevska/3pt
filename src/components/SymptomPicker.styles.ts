@@ -2,7 +2,8 @@ import { StyleSheet } from 'react-native';
 import { colors, componentStyles, spacing, typography } from '../utils/theme';
 
 export const styles = StyleSheet.create({
-  wrap: { marginTop: spacing.sm },
+  // Parent card already provides padding; avoid double top spacing.
+  wrap: {},
   label: {
     ...typography.labelCaps,
     marginBottom: spacing.xs,
@@ -11,6 +12,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
+    justifyContent: 'center',
   },
   chip: {
     flexDirection: 'row',
@@ -20,6 +22,9 @@ export const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     borderWidth: 2,
     borderColor: 'transparent',
+    // helps the grid feel more uniform without forcing a strict layout
+    minWidth: 128,
+    justifyContent: 'center',
   },
   chipSelected: {
     borderColor: colors.borderStrong,

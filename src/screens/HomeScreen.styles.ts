@@ -48,7 +48,7 @@ export const styles = StyleSheet.create({
   cardTitleSpaced: {
     ...typography.labelCaps,
     letterSpacing: 0.8,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   cardValue: { ...typography.sectionTitle, lineHeight: 22 },
   cardSubtitle: { marginTop: 4, ...typography.helper },

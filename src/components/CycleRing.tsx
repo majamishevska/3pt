@@ -36,8 +36,8 @@ export function CycleRing({ cycleDay, phases, size = 232, strokeWidth = 18, omit
             stroke={seg.color}
             strokeWidth={strokeWidth}
             fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            strokeLinecap="butt"
+            strokeLinejoin="miter"
           />
         ))}
         <Circle cx={dot.x} cy={dot.y} r={dotR + 2} fill={colors.surface} opacity={0.98} />
