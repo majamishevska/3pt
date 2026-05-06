@@ -11,6 +11,10 @@ In a post-*Dobbs* landscape where reproductive data is increasingly weaponized b
 
 ## Getting Started
 
+
+**Optional deployed Vercel link:** https://3pt-tracker.vercel.app
+**Note:** Local deployment is preferred; see the setup instructions above.
+
 ### 1. Installation
 Clone the repository and install the dependencies:
 
@@ -29,7 +33,7 @@ press i to open iOS simulator
  ⁠
 You can then run the app on an iOS Simulator, Android Emulator, or a physical device via the Expo Go app.
 
-### 3. Accessing App
+### 3. Accessing the App
 
 To ensure privacy against physical device snooping, the app launches with a lock screen.
 **The PIN to unlock and access the app is *1952*.**

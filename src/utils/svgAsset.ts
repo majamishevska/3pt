@@ -10,6 +10,12 @@ export async function loadSvgXmlFromModule(mod: number): Promise<string> {
     await asset.downloadAsync();
   }
   const uri = asset.localUri ?? asset.uri;
+  // In SSR/static export (Node), `uri` can be a relative "/assets/..." URL.
+  // Node fetch requires an absolute URL; return empty xml in that scenario.
+  if (typeof window === 'undefined' && typeof uri === 'string' && uri.startsWith('/')) {
+    svgXmlCache.set(mod, '');
+    return '';
+  }
   const res = await fetch(uri);
   const xml = await res.text();
   svgXmlCache.set(mod, xml);

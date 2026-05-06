@@ -44,6 +44,9 @@ function useExportOptionLogosXml(): Partial<Record<ImportSourceChoice, string>> 
   const [xmlById, setXmlById] = useState<Partial<Record<ImportSourceChoice, string>>>({});
 
   useMemo(() => {
+    // During static web export, this screen can be rendered in Node (no window),
+    // and asset URLs like "/assets/..." cannot be fetched. Skip icon loading in SSR.
+    if (typeof window === 'undefined') return;
     void (async () => {
       const entries = (Object.keys(IMPORT_OPTIONS) as ImportSourceChoice[]).map(async (k) => {
         const xml = await loadSvgXmlFromModule(IMPORT_OPTIONS[k]);
