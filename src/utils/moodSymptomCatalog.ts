@@ -67,7 +67,15 @@ const symptomLabelById = new Map<string, string>(
   SYMPTOM_CATEGORIES.flatMap((c) => c.options.map((o) => [o.id, o.label] as const)),
 );
 
+const symptomIconById = new Map<string, CategorizedOption['icon']>(
+  SYMPTOM_CATEGORIES.flatMap((c) => c.options.map((o) => [o.id, o.icon] as const)),
+);
+
 const moodLabelById = new Map<string, string>(MOOD_CATEGORIES.flatMap((c) => c.options.map((o) => [o.id, o.label] as const)));
+
+const moodIconById = new Map<string, CategorizedOption['icon']>(
+  MOOD_CATEGORIES.flatMap((c) => c.options.map((o) => [o.id, o.icon] as const)),
+);
 
 export function getSymptomLabel(id: string): string {
   return symptomLabelById.get(id) ?? id;
@@ -75,5 +83,13 @@ export function getSymptomLabel(id: string): string {
 
 export function getMoodLabel(id: string): string {
   return moodLabelById.get(id) ?? id;
+}
+
+export function getSymptomIcon(id: string): CategorizedOption['icon'] | null {
+  return symptomIconById.get(id) ?? null;
+}
+
+export function getMoodIcon(id: string): CategorizedOption['icon'] | null {
+  return moodIconById.get(id) ?? null;
 }
 

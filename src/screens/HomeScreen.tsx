@@ -119,23 +119,17 @@ export default function HomeScreen() {
 
     const topSymptoms = top3(symptomCounts);
     const topMoods = top3(moodCounts);
-    const avgFlowRounded = Math.round((flowSum / span) * 10) / 10;
+    const avgFlowRaw = flowSum / span;
+    const avgFlowRounded = Math.round(avgFlowRaw * 10) / 10;
 
-    const lines: string[] = [];
-    if (topSymptoms.length) {
-      lines.push(
-        `Top symptoms: ${topSymptoms.map(([id, c]) => `${getSymptomLabel(id)} (${c})`).join(', ')}.`,
-      );
-    }
-    if (topMoods.length) {
-      lines.push(`Top moods: ${topMoods.map(([id, c]) => `${getMoodLabel(id)} (${c})`).join(', ')}.`);
-    }
-    if (Number.isFinite(avgFlowRounded)) {
-      lines.push(`Avg flow: ${avgFlowRounded}/5.`);
-    }
-
-    if (!lines.length) return null;
-    return { span, text: lines.join('\n') };
+    if (!topSymptoms.length && !topMoods.length) return null;
+    return {
+      span,
+      topSymptoms,
+      topMoods,
+      avgFlowRaw,
+      avgFlowRounded,
+    };
   }, [entries]);
 
   const greetingName = settings?.displayName?.trim();
@@ -177,8 +171,56 @@ export default function HomeScreen() {
 
           {recentSummary ? (
             <View style={styles.card}>
-              <Text style={styles.cardTitleSpaced}>Last {recentSummary.span} periods</Text>
-              <Text style={styles.cardSubtitle}>{recentSummary.text}</Text>
+              <Text style={styles.cardTitleSpaced}>Overview</Text>
+              <Text style={styles.cardSubtitle}>Based on your last {recentSummary.span} periods.</Text>
+              <View style={styles.summaryGrid}>
+                {recentSummary.topSymptoms.length ? (
+                  <View style={styles.summaryRow}>
+                    <Text style={styles.summaryKey}>Top symptoms</Text>
+                    <Text style={styles.summaryValue}>
+                      {recentSummary.topSymptoms.map(([id, c]) => `${getSymptomLabel(id)} (${c})`).join(', ')}
+                    </Text>
+                  </View>
+                ) : null}
+
+                {recentSummary.topMoods.length ? (
+                  <View style={styles.summaryRow}>
+                    <Text style={styles.summaryKey}>Top moods</Text>
+                    <Text style={styles.summaryValue}>
+                      {recentSummary.topMoods.map(([id, c]) => `${getMoodLabel(id)} (${c})`).join(', ')}
+                    </Text>
+                  </View>
+                ) : null}
+
+                <View style={[styles.summaryRow, styles.summaryRowFlow]}>
+                  <Text style={styles.summaryKey}>Average flow</Text>
+                  <View style={styles.flowDotsRow}>
+                    <View style={styles.flowDots}>
+                      {Array.from({ length: 5 }).map((_, idx) => {
+                        const n = idx + 1;
+                        const frac = Math.max(0, Math.min(1, (recentSummary.avgFlowRaw ?? 0) - (n - 1)));
+                        return (
+                          <View
+                            key={n}
+                            style={styles.flowDot}
+                          >
+                            {frac > 0 ? (
+                              <View
+                                style={[
+                                  styles.flowDotFill,
+                                  { width: `${Math.round(frac * 100)}%` },
+                                  frac >= 1 ? styles.flowDotFillFull : null,
+                                ]}
+                              />
+                            ) : null}
+                          </View>
+                        );
+                      })}
+                    </View>
+                    <Text style={styles.flowLabel}>{recentSummary.avgFlowRounded}/5</Text>
+                  </View>
+                </View>
+              </View>
             </View>
           ) : null}
         </View>
